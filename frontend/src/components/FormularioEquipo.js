@@ -23,7 +23,7 @@ const FormularioEquipo = ({ onGuardar }) => {
         direccionIP: '',
     });
 
-    const [openDropdown, setOpenDropdown] = useState(null); // Para controlar qué acordeón está abierto
+    const [openDropdown, setOpenDropdown] = useState(null);
     const [otherTipo, setOtherTipo] = useState('');
 
     const handleChange = (e) => {
@@ -65,14 +65,12 @@ const FormularioEquipo = ({ onGuardar }) => {
         }
     };
 
-    const [openAccordion, setOpenAccordion] = useState(false); // Controla si el acordeón está abierto
+    const [openAccordion, setOpenAccordion] = useState(false);
     return (
         <div className="form-container">
             <h3>Registrar Nuevo Equipo</h3>
             <form onSubmit={handleSubmit}>
 
-
-                {/* === ACORDEÓN: DETALLES DEL EQUIPO === */}
                 <div className="accordion">
                     <div
                         className="accordion-header"
@@ -87,8 +85,6 @@ const FormularioEquipo = ({ onGuardar }) => {
                     {openAccordion && (
                         <div className="accordion-body">
                             <div className="form-grid">
-                                {/* === ACORDEÓN: TIPO DE EQUIPO === */}
-                                {/* Campo: Tipo de equipo (como input falso) */}
                                 <div>
                                     <label>Tipo de equipo:</label>
                                     <div
@@ -127,7 +123,6 @@ const FormularioEquipo = ({ onGuardar }) => {
                                     )}
                                 </div>
 
-                                {/* Campo "Otro" tipo */}
                                 {equipo.tipoEquipo === 'Otro' && (
                                     <div className="form-group">
                                         <label>Especificar tipo:</label>
@@ -142,7 +137,6 @@ const FormularioEquipo = ({ onGuardar }) => {
                                     </div>
                                 )}
 
-                                {/* Campo: Marca */}
                                 <div>
                                     <label>Marca:</label>
                                     <input
@@ -153,8 +147,6 @@ const FormularioEquipo = ({ onGuardar }) => {
                                         placeholder="HP, ACER, ..."
                                     />
                                 </div>
-
-                                {/* Campo: Modelo */}
                                 <div>
                                     <label>Modelo:</label>
                                     <input
@@ -166,7 +158,6 @@ const FormularioEquipo = ({ onGuardar }) => {
                                     />
                                 </div>
 
-                                {/* Campo: N° Serie */}
                                 <div>
                                     <label>N° Serie:</label>
                                     <input
@@ -177,8 +168,6 @@ const FormularioEquipo = ({ onGuardar }) => {
                                         placeholder="ABC123XYZ"
                                     />
                                 </div>
-
-                                {/* Campo: Activo Institucional */}
                                 <div>
                                     <label>Activo Institucional:</label>
                                     <input
@@ -189,7 +178,6 @@ const FormularioEquipo = ({ onGuardar }) => {
                                     />
                                 </div>
 
-                                {/* Campo: Usuario asignado */}
                                 <div>
                                     <label>Usuario:</label>
                                     <input
@@ -200,7 +188,6 @@ const FormularioEquipo = ({ onGuardar }) => {
                                     />
                                 </div>
 
-                                {/* Campo: Ubicación */}
                                 <div>
                                     <label>Ubicación:</label>
                                     <input
@@ -210,8 +197,6 @@ const FormularioEquipo = ({ onGuardar }) => {
                                         placeholder="URGENCIA, ADMISIONES, ..."
                                     />
                                 </div>
-
-                                {/* Campo: Sistema Operativo */}
                                 <div>
                                     <label>S.O.:</label>
                                     <input
@@ -221,8 +206,6 @@ const FormularioEquipo = ({ onGuardar }) => {
                                         placeholder="Windows 10, macOS, etc."
                                     />
                                 </div>
-
-                                {/* Campo: Procesador */}
                                 <div>
                                     <label>Procesador:</label>
                                     <input
@@ -232,8 +215,6 @@ const FormularioEquipo = ({ onGuardar }) => {
                                         placeholder="Intel i5-10400, ..."
                                     />
                                 </div>
-
-                                {/* Campo: Memoria RAM */}
                                 <div>
                                     <label>RAM:</label>
                                     <input
@@ -243,8 +224,6 @@ const FormularioEquipo = ({ onGuardar }) => {
                                         placeholder="8 GB, 16 GB, ..."
                                     />
                                 </div>
-
-                                {/* Campo: Disco duro */}
                                 <div>
                                     <label>Disco:</label>
                                     <input
@@ -255,7 +234,6 @@ const FormularioEquipo = ({ onGuardar }) => {
                                     />
                                 </div>
 
-                                {/* Campo: Fecha de compra */}
                                 <div>
                                     <label>Fecha de compra:</label>
                                     <input
@@ -266,7 +244,6 @@ const FormularioEquipo = ({ onGuardar }) => {
                                     />
                                 </div>
 
-                                {/* Campo: Nombre del dispositivo */}
                                 <div>
                                     <label>Nombre del dispositivo:</label>
                                     <input
@@ -277,7 +254,6 @@ const FormularioEquipo = ({ onGuardar }) => {
                                     />
                                 </div>
 
-                                {/* Campo: Fecha de instalación */}
                                 <div>
                                     <label>Fecha de instalación:</label>
                                     <input
@@ -288,7 +264,6 @@ const FormularioEquipo = ({ onGuardar }) => {
                                     />
                                 </div>
 
-                                {/* Campo: ¿Tiene IP? */}
                                 <div>
                                     <label>Tiene IP?</label>
                                     <div className="radio-group">
@@ -314,8 +289,6 @@ const FormularioEquipo = ({ onGuardar }) => {
                                         </label>
                                     </div>
                                 </div>
-
-                                {/* Campo condicional: Dirección IP (solo si tieneIP === 'si') */}
                                 {equipo.tieneIP === 'si' && (
                                     <div>
                                         <label>Dirección IP:</label>
@@ -330,8 +303,6 @@ const FormularioEquipo = ({ onGuardar }) => {
                                         />
                                     </div>
                                 )}
-
-                                {/* Espacio vacío opcional para alinear */}
                                 <div></div>
                             </div>
                         </div>

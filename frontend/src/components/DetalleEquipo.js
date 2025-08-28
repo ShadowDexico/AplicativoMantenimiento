@@ -55,6 +55,7 @@ const DetalleEquipo = ({ equipo, onVolver, onActualizar }) => {
                         <button className='buttomDetalleEquipo' onClick={() => setShowModal(true)}>➕ Mantenimiento</button>
                         {equipo.estado === 'activo' && <button className='buttomDetalleEquipo' onClick={handleBaja}>🗑️ Dar de baja</button>}
                         <button className='buttomDetalleEquipo' onClick={handleActualizar}>✏️ Editar</button>
+                        <button className='buttomDetalleEquipo' onClick={onVolver}>← Volver</button>
                     </div>
                 )}
 
@@ -70,8 +71,6 @@ const DetalleEquipo = ({ equipo, onVolver, onActualizar }) => {
                         </ul>
                     </div>
                 )}
-
-                <button className='buttomDetalleEquipo' onClick={onVolver}>← Volver</button>
 
                 {showModal && (
                     <ModalMantenimiento

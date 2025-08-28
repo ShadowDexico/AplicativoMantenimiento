@@ -68,6 +68,7 @@
     overflow: hidden;
     text-overflow: ellipsis;
     color: #333;
+    font-size: 13px;
 }
 
 .arrow {

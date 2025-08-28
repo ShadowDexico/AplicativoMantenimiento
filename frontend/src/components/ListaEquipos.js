@@ -42,7 +42,7 @@ const ListaEquipos = ({ onSelect }) => {
                                 <td>{eq.usuarioAsignado}</td>
                                 <td>{eq.estado}</td>
                                 <td>
-                                    <button onClick={() => onSelect(eq)}>Ver</button>
+                                    <button className='buttomListaEquipo' onClick={() => onSelect(eq)}>Ver</button>
                                 </td>
                             </tr>
                         ))}

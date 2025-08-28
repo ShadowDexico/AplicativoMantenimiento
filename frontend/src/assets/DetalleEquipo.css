@@ -1,9 +1,11 @@
 .detalle-container {
     background-color: #f8f9fa;
-    padding: 20px;
-    border-radius: 8px;
-    border: 1px solid #e9ecef;
-    margin-top: 20px;
+    padding: 25px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #e0e0e0;
+    max-width: 800px;
+    margin: 20px auto;
 }
 
 .detalle-container p {
@@ -22,7 +24,9 @@
 }
 
 .buttomDetalleEquipo {
-    width: 12%;
+    width: 125px;
     padding: 10px;
     margin: 2px;
+    font-size: 12px;
+    font-weight: bold;
 }
