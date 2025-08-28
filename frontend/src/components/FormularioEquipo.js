@@ -17,6 +17,10 @@ const FormularioEquipo = ({ onGuardar }) => {
         memoriaRAM: '',
         discoDuro: '',
         fechaCompra: '',
+        nombreDispositivo: '',
+        fechaInstalacion: '',
+        tieneIP: 'no',
+        direccionIP: '',
     });
 
     const [openDropdown, setOpenDropdown] = useState(null); // Para controlar qué acordeón está abierto
@@ -262,7 +266,72 @@ const FormularioEquipo = ({ onGuardar }) => {
                                     />
                                 </div>
 
-                                {/* Espacio vacío para alinear (opcional) */}
+                                {/* Campo: Nombre del dispositivo */}
+                                <div>
+                                    <label>Nombre del dispositivo:</label>
+                                    <input
+                                        name="nombreDispositivo"
+                                        value={equipo.nombreDispositivo}
+                                        onChange={handleChange}
+                                        placeholder="PC-Servicios, ..."
+                                    />
+                                </div>
+
+                                {/* Campo: Fecha de instalación */}
+                                <div>
+                                    <label>Fecha de instalación:</label>
+                                    <input
+                                        type="date"
+                                        name="fechaInstalacion"
+                                        value={equipo.fechaInstalacion}
+                                        onChange={handleChange}
+                                    />
+                                </div>
+
+                                {/* Campo: ¿Tiene IP? */}
+                                <div>
+                                    <label>Tiene IP?</label>
+                                    <div className="radio-group">
+                                        <label>
+                                            <input
+                                                type="radio"
+                                                name="tieneIP"
+                                                value="si"
+                                                checked={equipo.tieneIP === 'si'}
+                                                onChange={(e) => setEquipo({ ...equipo, tieneIP: e.target.value })}
+                                            />
+                                            Sí
+                                        </label>
+                                        <label style={{ marginLeft: '16px' }}>
+                                            <input
+                                                type="radio"
+                                                name="tieneIP"
+                                                value="no"
+                                                checked={equipo.tieneIP === 'no'}
+                                                onChange={(e) => setEquipo({ ...equipo, tieneIP: e.target.value, direccionIP: '' })}
+                                            />
+                                            No
+                                        </label>
+                                    </div>
+                                </div>
+
+                                {/* Campo condicional: Dirección IP (solo si tieneIP === 'si') */}
+                                {equipo.tieneIP === 'si' && (
+                                    <div>
+                                        <label>Dirección IP:</label>
+                                        <input
+                                            type="text"
+                                            name="direccionIP"
+                                            value={equipo.direccionIP}
+                                            onChange={handleChange}
+                                            placeholder="192.168.1.100, ..."
+                                            pattern="^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$"
+                                            title="Ingresa una IP válida (ej: 192.168.1.100)"
+                                        />
+                                    </div>
+                                )}
+
+                                {/* Espacio vacío opcional para alinear */}
                                 <div></div>
                             </div>
                         </div>

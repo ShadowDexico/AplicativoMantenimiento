@@ -210,6 +210,26 @@ button:hover {
     animation: fadeIn 0.2s ease;
 }
 
+.radio-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 8px;
+}
+
+.radio-group label {
+    font-size: 14px;
+    color: #555;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.radio-group input[type="radio"] {
+    margin-right: 4px;
+}
+
+
 /* Responsive */
 @media (max-width: 768px) {
     .form-grid {
