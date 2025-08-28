@@ -1,3 +1,4 @@
+import '../assets/ModalMantenimiento.css';
 import React, { useState } from 'react';
 import { agregarMantenimiento } from '../services/api';
 
@@ -26,8 +27,8 @@ const ModalMantenimiento = ({ equipoId, onClose, onGuardar }) => {
     };
 
     return (
-        <div style={modalStyle}>
-            <div style={contentStyle}>
+        <div className="modal-backdrop">
+            <div className="modal-content">
                 <h3>Agregar Mantenimiento</h3>
                 <form onSubmit={handleSubmit}>
                     <div>
@@ -53,7 +54,5 @@ const ModalMantenimiento = ({ equipoId, onClose, onGuardar }) => {
     );
 };
 
-const modalStyle = { position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center' };
-const contentStyle = { background: 'white', padding: '20px', borderRadius: '8px', width: '80%', maxWidth: '500px' };
 
 export default ModalMantenimiento;
