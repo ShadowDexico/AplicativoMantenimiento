@@ -1,0 +1,88 @@
+import React, { useState } from 'react';
+import ModalMantenimiento from './ModalMantenimiento';
+import { darDeBajaEquipo } from '../services/api';
+
+const DetalleEquipo = ({ equipo, onVolver, onActualizar }) => {
+    const [editando, setEditando] = useState(false);
+    const [equipoEdit, setEquipoEdit] = useState({ ...equipo });
+    const [showModal, setShowModal] = useState(false);
+
+    const handleActualizar = () => {
+        setEditando(true);
+    };
+
+    const handleGuardar = async () => {
+        try {
+            await onActualizar(equipo.id, equipoEdit);
+            setEditando(false);
+            alert('Equipo actualizado');
+        } catch (err) {
+            alert('Error');
+        }
+    };
+
+    const handleBaja = () => {
+        const responsable = prompt("¿Quién da de baja el equipo?");
+        if (responsable) {
+            darDeBajaEquipo(equipo.id, { responsableBaja: responsable })
+                .then(() => {
+                    alert('Equipo dado de baja');
+                    onVolver();
+                })
+                .catch(() => alert('Error'));
+        }
+    };
+
+    return (
+        <div>
+            <h3>Detalles del Equipo</h3>
+            {editando ? (
+                <div>
+                    <input name="marca" value={equipoEdit.marca} onChange={(e) => setEquipoEdit({ ...equipoEdit, marca: e.target.value })} />
+                    <input name="modelo" value={equipoEdit.modelo} onChange={(e) => setEquipoEdit({ ...equipoEdit, modelo: e.target.value })} />
+                    <button onClick={handleGuardar}>Guardar</button>
+                    <button onClick={() => setEditando(false)}>Cancelar</button>
+                </div>
+            ) : (
+                <div>
+                    <p><strong>Tipo:</strong> {equipo.tipoEquipo}</p>
+                    <p><strong>Marca:</strong> {equipo.marca}</p>
+                    <p><strong>Modelo:</strong> {equipo.modelo}</p>
+                    <p><strong>Usuario:</strong> {equipo.usuarioAsignado}</p>
+                    <p><strong>Estado:</strong> {equipo.estado}</p>
+                    <button onClick={() => setShowModal(true)}>➕ Mantenimiento</button>
+                    {equipo.estado === 'activo' && <button onClick={handleBaja}>🗑️ Dar de baja</button>}
+                    <button onClick={handleActualizar}>✏️ Editar</button>
+                </div>
+            )}
+
+            {equipo.mantenimientos && equipo.mantenimientos.length > 0 && (
+                <div>
+                    <h4>Mantenimientos</h4>
+                    <ul>
+                        {equipo.mantenimientos.map(m => (
+                            <li key={m.id}>
+                                {m.tipoMantenimiento} - {m.fechaMantenimiento} ({m.horaInicio} a {m.horaFin})
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            )}
+
+            <button onClick={onVolver}>← Volver</button>
+
+            {showModal && (
+                <ModalMantenimiento
+                    equipoId={equipo.id}
+                    onClose={() => setShowModal(false)}
+                    onGuardar={() => {
+                        alert('Mantenimiento agregado');
+                        // Recargar detalle
+                    }}
+                />
+            )}
+        </div>
+    );
+};
+
+export default DetalleEquipo;
