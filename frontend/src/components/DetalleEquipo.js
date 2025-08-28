@@ -42,8 +42,8 @@ const DetalleEquipo = ({ equipo, onVolver, onActualizar }) => {
                     <div>
                         <input name="marca" value={equipoEdit.marca} onChange={(e) => setEquipoEdit({ ...equipoEdit, marca: e.target.value })} />
                         <input name="modelo" value={equipoEdit.modelo} onChange={(e) => setEquipoEdit({ ...equipoEdit, modelo: e.target.value })} />
-                        <button onClick={handleGuardar}>Guardar</button>
-                        <button onClick={() => setEditando(false)}>Cancelar</button>
+                        <button className='buttomDetalleEquipo' onClick={handleGuardar}>Guardar</button>
+                        <button className='buttomDetalleEquipo' onClick={() => setEditando(false)}>Cancelar</button>
                     </div>
                 ) : (
                     <div>
@@ -52,9 +52,9 @@ const DetalleEquipo = ({ equipo, onVolver, onActualizar }) => {
                         <p><strong>Modelo:</strong> {equipo.modelo}</p>
                         <p><strong>Usuario:</strong> {equipo.usuarioAsignado}</p>
                         <p><strong>Estado:</strong> {equipo.estado}</p>
-                        <button onClick={() => setShowModal(true)}>➕ Mantenimiento</button>
-                        {equipo.estado === 'activo' && <button onClick={handleBaja}>🗑️ Dar de baja</button>}
-                        <button onClick={handleActualizar}>✏️ Editar</button>
+                        <button className='buttomDetalleEquipo' onClick={() => setShowModal(true)}>➕ Mantenimiento</button>
+                        {equipo.estado === 'activo' && <button className='buttomDetalleEquipo' onClick={handleBaja}>🗑️ Dar de baja</button>}
+                        <button className='buttomDetalleEquipo' onClick={handleActualizar}>✏️ Editar</button>
                     </div>
                 )}
 
@@ -71,7 +71,7 @@ const DetalleEquipo = ({ equipo, onVolver, onActualizar }) => {
                     </div>
                 )}
 
-                <button onClick={onVolver}>← Volver</button>
+                <button className='buttomDetalleEquipo' onClick={onVolver}>← Volver</button>
 
                 {showModal && (
                     <ModalMantenimiento

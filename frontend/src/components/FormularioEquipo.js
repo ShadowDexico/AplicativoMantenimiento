@@ -1,5 +1,6 @@
-import '../assets/FormularioEquipo.css';
+
 import React, { useState } from 'react';
+import '../assets/FormularioEquipo.css';
 import { crearEquipo } from '../services/api';
 
 const FormularioEquipo = ({ onGuardar }) => {
@@ -18,9 +19,20 @@ const FormularioEquipo = ({ onGuardar }) => {
         fechaCompra: '',
     });
 
+    const [openDropdown, setOpenDropdown] = useState(null); // Para controlar qué acordeón está abierto
+    const [otherTipo, setOtherTipo] = useState('');
+
     const handleChange = (e) => {
-        setEquipo({ ...equipo, [e.target.name]: e.target.value });
+        const { name, value } = e.target;
+        setEquipo({ ...equipo, [name]: value });
     };
+
+    const handleSelectTipo = (value) => {
+        setEquipo({ ...equipo, tipoEquipo: value });
+        setOpenDropdown(null);
+    };
+
+
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -28,37 +40,234 @@ const FormularioEquipo = ({ onGuardar }) => {
             const res = await crearEquipo(equipo);
             onGuardar(res.data);
             alert('Equipo guardado');
+            // reset
+            setEquipo({
+                tipoEquipo: '',
+                marca: '',
+                modelo: '',
+                numeroSerie: '',
+                activoInstitucional: '',
+                usuarioAsignado: '',
+                ubicacion: '',
+                sistemaOperativo: '',
+                procesador: '',
+                memoriaRAM: '',
+                discoDuro: '',
+                fechaCompra: '',
+            });
+            setOtherTipo('');
         } catch (err) {
             alert('Error al guardar');
         }
     };
 
+    const [openAccordion, setOpenAccordion] = useState(false); // Controla si el acordeón está abierto
     return (
         <div className="form-container">
+            <h3>Registrar Nuevo Equipo</h3>
             <form onSubmit={handleSubmit}>
-                <h3>Registrar Nuevo Equipo</h3>
-                <div>
-                    <label>Tipo de equipo:</label>
-                    <div>
-                        <label><input type="checkbox" name="tipoEquipo" value="Computadora" onChange={handleChange} /> Computadora</label>
-                        <label><input type="checkbox" name="tipoEquipo" value="Impresora" onChange={handleChange} /> Impresora</label>
-                        <label><input type="checkbox" name="tipoEquipo" value="Servidor" onChange={handleChange} /> Servidor</label>
-                        <label><input type="checkbox" name="tipoEquipo" value="Notebook" onChange={handleChange} /> Notebook</label>
-                        <input type="text" placeholder="Otro..." onChange={(e) => setEquipo({ ...equipo, tipoEquipo: e.target.value })} />
-                    </div>
-                </div>
 
-                <div><label>Marca:</label><input name="marca" value={equipo.marca} onChange={handleChange} required /></div>
-                <div><label>Modelo:</label><input name="modelo" value={equipo.modelo} onChange={handleChange} required /></div>
-                <div><label>N° Serie:</label><input name="numeroSerie" value={equipo.numeroSerie} onChange={handleChange} required /></div>
-                <div><label>Activo Institucional:</label><input name="activoInstitucional" value={equipo.activoInstitucional} onChange={handleChange} /></div>
-                <div><label>Usuario:</label><input name="usuarioAsignado" value={equipo.usuarioAsignado} onChange={handleChange} /></div>
-                <div><label>Ubicación:</label><input name="ubicacion" value={equipo.ubicacion} onChange={handleChange} /></div>
-                <div><label>S.O.:</label><input name="sistemaOperativo" value={equipo.sistemaOperativo} onChange={handleChange} /></div>
-                <div><label>Procesador:</label><input name="procesador" value={equipo.procesador} onChange={handleChange} /></div>
-                <div><label>RAM:</label><input name="memoriaRAM" value={equipo.memoriaRAM} onChange={handleChange} /></div>
-                <div><label>Disco:</label><input name="discoDuro" value={equipo.discoDuro} onChange={handleChange} /></div>
-                <div><label>Fecha de compra:</label><input type="date" name="fechaCompra" value={equipo.fechaCompra} onChange={handleChange} /></div>
+
+                {/* === ACORDEÓN: DETALLES DEL EQUIPO === */}
+                <div className="accordion">
+                    <div
+                        className="accordion-header"
+                        onClick={() => setOpenAccordion(!openAccordion)}
+                    >
+                        <h4>Detalles del equipo</h4>
+                        <span className="accordion-arrow">
+                            {openAccordion ? '−' : '+'}
+                        </span>
+                    </div>
+
+                    {openAccordion && (
+                        <div className="accordion-body">
+                            <div className="form-grid">
+                                {/* === ACORDEÓN: TIPO DE EQUIPO === */}
+                                {/* Campo: Tipo de equipo (como input falso) */}
+                                <div>
+                                    <label>Tipo de equipo:</label>
+                                    <div
+                                        className="dropdown-simulated-input"
+                                        onClick={() => setOpenDropdown(openDropdown === 'tipo' ? null : 'tipo')}
+                                    >
+                                        <span className="dropdown-value">
+                                            {equipo.tipoEquipo || 'Seleccionar tipo de equipo'}
+                                        </span>
+                                        <span className="dropdown-arrow">
+                                            {openDropdown === 'tipo' ? '▲' : '▼'}
+                                        </span>
+                                    </div>
+
+                                    {openDropdown === 'tipo' && (
+                                        <div className="dropdown-list-aligned">
+                                            {['Computadora', 'Impresora', 'Servidor', 'Notebook'].map((tipo) => (
+                                                <div
+                                                    key={tipo}
+                                                    className="dropdown-item"
+                                                    onClick={() => handleSelectTipo(tipo)}
+                                                >
+                                                    {tipo}
+                                                </div>
+                                            ))}
+                                            <div
+                                                className="dropdown-item"
+                                                onClick={() => {
+                                                    setOpenDropdown('otroTipoInput');
+                                                    setEquipo({ ...equipo, tipoEquipo: 'Otro' });
+                                                }}
+                                            >
+                                                Otro...
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Campo "Otro" tipo */}
+                                {equipo.tipoEquipo === 'Otro' && (
+                                    <div className="form-group">
+                                        <label>Especificar tipo:</label>
+                                        <input
+                                            type="text"
+                                            placeholder="Ej. Proyector, Escáner"
+                                            value={otherTipo}
+                                            onChange={(e) => setOtherTipo(e.target.value)}
+                                            onBlur={() => setEquipo({ ...equipo, tipoEquipo: otherTipo })}
+                                            autoFocus
+                                        />
+                                    </div>
+                                )}
+
+                                {/* Campo: Marca */}
+                                <div>
+                                    <label>Marca:</label>
+                                    <input
+                                        name="marca"
+                                        value={equipo.marca}
+                                        onChange={handleChange}
+                                        required
+                                        placeholder="HP, ACER, ..."
+                                    />
+                                </div>
+
+                                {/* Campo: Modelo */}
+                                <div>
+                                    <label>Modelo:</label>
+                                    <input
+                                        name="modelo"
+                                        value={equipo.modelo}
+                                        onChange={handleChange}
+                                        required
+                                        placeholder="Inspiron 3501, ..."
+                                    />
+                                </div>
+
+                                {/* Campo: N° Serie */}
+                                <div>
+                                    <label>N° Serie:</label>
+                                    <input
+                                        name="numeroSerie"
+                                        value={equipo.numeroSerie}
+                                        onChange={handleChange}
+                                        required
+                                        placeholder="ABC123XYZ"
+                                    />
+                                </div>
+
+                                {/* Campo: Activo Institucional */}
+                                <div>
+                                    <label>Activo Institucional:</label>
+                                    <input
+                                        name="activoInstitucional"
+                                        value={equipo.activoInstitucional}
+                                        onChange={handleChange}
+                                        placeholder="SM-XXXX"
+                                    />
+                                </div>
+
+                                {/* Campo: Usuario asignado */}
+                                <div>
+                                    <label>Usuario:</label>
+                                    <input
+                                        name="usuarioAsignado"
+                                        value={equipo.usuarioAsignado}
+                                        onChange={handleChange}
+                                        placeholder="Nombre completo"
+                                    />
+                                </div>
+
+                                {/* Campo: Ubicación */}
+                                <div>
+                                    <label>Ubicación:</label>
+                                    <input
+                                        name="ubicacion"
+                                        value={equipo.ubicacion}
+                                        onChange={handleChange}
+                                        placeholder="URGENCIA, ADMISIONES, ..."
+                                    />
+                                </div>
+
+                                {/* Campo: Sistema Operativo */}
+                                <div>
+                                    <label>S.O.:</label>
+                                    <input
+                                        name="sistemaOperativo"
+                                        value={equipo.sistemaOperativo}
+                                        onChange={handleChange}
+                                        placeholder="Windows 10, macOS, etc."
+                                    />
+                                </div>
+
+                                {/* Campo: Procesador */}
+                                <div>
+                                    <label>Procesador:</label>
+                                    <input
+                                        name="procesador"
+                                        value={equipo.procesador}
+                                        onChange={handleChange}
+                                        placeholder="Intel i5-10400, ..."
+                                    />
+                                </div>
+
+                                {/* Campo: Memoria RAM */}
+                                <div>
+                                    <label>RAM:</label>
+                                    <input
+                                        name="memoriaRAM"
+                                        value={equipo.memoriaRAM}
+                                        onChange={handleChange}
+                                        placeholder="8 GB, 16 GB, ..."
+                                    />
+                                </div>
+
+                                {/* Campo: Disco duro */}
+                                <div>
+                                    <label>Disco:</label>
+                                    <input
+                                        name="discoDuro"
+                                        value={equipo.discoDuro}
+                                        onChange={handleChange}
+                                        placeholder="256 GB SSD, 1 TB HDD, ..."
+                                    />
+                                </div>
+
+                                {/* Campo: Fecha de compra */}
+                                <div>
+                                    <label>Fecha de compra:</label>
+                                    <input
+                                        type="date"
+                                        name="fechaCompra"
+                                        value={equipo.fechaCompra}
+                                        onChange={handleChange}
+                                    />
+                                </div>
+
+                                {/* Espacio vacío para alinear (opcional) */}
+                                <div></div>
+                            </div>
+                        </div>
+                    )}
+                </div>
 
                 <button type="submit">Guardar Equipo</button>
             </form>

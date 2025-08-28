@@ -46,8 +46,8 @@ const ModalMantenimiento = ({ equipoId, onClose, onGuardar }) => {
                     <div><label>Hora inicio:</label><input type="time" name="horaInicio" onChange={handleChange} /></div>
                     <div><label>Hora fin:</label><input type="time" name="horaFin" onChange={handleChange} /></div>
                     <div><label>Observaciones:</label><textarea name="observaciones" onChange={handleChange} /></div>
-                    <button type="submit">Guardar</button>
-                    <button type="button" onClick={onClose}>Cancelar</button>
+                    <button className='buttonModal' type="submit">Guardar</button>
+                    <button className='buttonModal' type="button" onClick={onClose}>Cancelar</button>
                 </form>
             </div>
         </div>
