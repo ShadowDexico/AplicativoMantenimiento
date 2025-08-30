@@ -31,3 +31,13 @@ tr:hover {
     width: auto;
     
 }
+
+.status-activo {
+  color: green;
+  font-weight: bold;
+}
+
+.status-inactivo {
+  color: red;
+  font-weight: bold;
+}

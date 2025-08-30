@@ -1,10 +1,11 @@
-const { pool, getConnection } = require("../config/data");
-const { queriesEquipo } = require("../query");
+const sql = require("mssql"); // Necesario para acceder a sql.NVarChar, sql.Int, etc.
+const { getConnection } = require("../config/data"); // Importar la función getConnection
+const { queriesEquipo } = require("../query"); // Importar las consultas
 
 // Obtener todos los equipos
 const getEquipos = async (req, res) => {
   try {
-	const pool = await getConnection();
+    const pool = await getConnection();
     const result = await pool.request().query(queriesEquipo.getEquipos);
     res.status(200).json(result.recordset); // Retorna la lista de equipos
   } catch (err) {
@@ -37,9 +38,11 @@ const crearEquipo = async (req, res) => {
     fecha_mantenimiento,
     hora_inicio,
     hora_fin,
+    estado,
   } = req.body;
-
+  console.log('k', fecha_mantenimiento);
   try {
+    const pool = await getConnection(); // Obtener la conexión antes de hacer la consulta
     const result = await pool
       .request()
       .input("tipo_equipo", sql.NVarChar, tipo_equipo)
@@ -51,16 +54,17 @@ const crearEquipo = async (req, res) => {
       .input("ubicacion", sql.NVarChar, ubicacion)
       .input("sistema_operativo", sql.NVarChar, sistema_operativo)
       .input("procesador", sql.NVarChar, procesador)
-      .input("ram", sql.Int, ram)
-      .input("fecha_compra", sql.Date, fecha_compra)
+      .input("ram", sql.NVarChar, ram)
+      .input("fecha_compra", sql.DateTime, fecha_compra)
       .input("nombre_dispositivo", sql.NVarChar, nombre_dispositivo)
-      .input("fecha_instalacion", sql.Date, fecha_instalacion)
-      .input("ipActiva", sql.NVarChar, ipActiva)
+      .input("fecha_instalacion", sql.DateTime, fecha_instalacion)
+      .input("ipActiva", sql.Bit, ipActiva)
       .input("ip", sql.NVarChar, ip)
-      .input("tipo_mantenimiento", sql.NVarChar, tipo_mantenimiento)
-      .input("fecha_mantenimiento", sql.Date, fecha_mantenimiento)
-      .input("hora_inicio", sql.Time, hora_inicio)
-      .input("hora_fin", sql.Time, hora_fin)
+      .input("tipo_mantenimiento", sql.NVarChar, tipo_mantenimiento || null)
+      .input("fecha_mantenimiento", sql.DateTime, fecha_mantenimiento || null)
+      .input("hora_inicio", sql.Time, hora_inicio || null)
+      .input("hora_fin", sql.Time, hora_fin || null)
+      .input("estado", sql.Bit, estado)
       .query(queriesEquipo.setEquipos);
 
     res.status(201).json({ message: "Equipo creado exitosamente" });
