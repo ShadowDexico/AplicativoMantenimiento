@@ -40,7 +40,7 @@ const crearEquipo = async (req, res) => {
     hora_fin,
     estado,
   } = req.body;
-  console.log('k', fecha_mantenimiento);
+  console.log('k', estado);
   try {
     const pool = await getConnection(); // Obtener la conexión antes de hacer la consulta
     const result = await pool

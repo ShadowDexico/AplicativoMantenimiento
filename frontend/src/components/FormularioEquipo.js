@@ -44,7 +44,7 @@ const FormularioEquipo = ({ onGuardar }) => {
     e.preventDefault();
     const equipoParaEnviar = {
       ...equipo,
-      estado: equipo.estado ? "activo" : "inactivo",
+      estado: equipo.estado ? 1 : 0,
     };
     try {
       const res = await crearEquipo(equipoParaEnviar);
@@ -332,20 +332,30 @@ const FormularioEquipo = ({ onGuardar }) => {
 
                 <div>
                   <label>¿Equipo activo?</label>
-                  <div className="checkbox-group">
+                  <div className="radio-group">
                     <label>
                       <input
-                        type="checkbox"
-                        checked={equipo.estado}
-                        onChange={() =>
-                          setEquipo({ ...equipo, estado: !equipo.estado })
-                        }
+                        type="radio"
+                        name="estado"
+                        value="si"
+                        checked={equipo.estado === true || equipo.estado === 1}
+                        onChange={() => setEquipo({ ...equipo, estado: true })}
                       />
-                      Sí, está funcionando
+                      Sí
+                    </label>
+                    <label style={{ marginLeft: "16px" }}>
+                      <input
+                        type="radio"
+                        name="estado"
+                        value="no"
+                        checked={equipo.estado === false || equipo.estado === 0}
+                        onChange={() => setEquipo({ ...equipo, estado: false })}
+                      />
+                      No
                     </label>
                   </div>
                 </div>
-                
+
                 <div></div>
               </div>
             </div>

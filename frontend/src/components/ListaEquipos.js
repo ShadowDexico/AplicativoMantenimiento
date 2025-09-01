@@ -17,17 +17,12 @@ const ListaEquipos = ({ onSelect }) => {
   useEffect(() => {
     const intervalId = setInterval(
       cargarEquipos,
-      equipos?.length > 0 ? 5000 : 100
+      equipos?.length > 0 ? 60000 : 100
     );
 
     return () => clearInterval(intervalId);
   }, [cargarEquipos, equipos]);
 
-  console.log(
-    "Estado de ejemplo:",
-    equipos[0]?.estado,
-    typeof equipos[0]?.estado
-  );
 
   return (
     <div>
@@ -45,27 +40,29 @@ const ListaEquipos = ({ onSelect }) => {
             </tr>
           </thead>
           <tbody>
-            {equipos.map((eq) => (
-              <tr key={eq.id}>
-                <td>{eq.tipo_equipo}</td>
-                <td>{eq.marca}</td>
-                <td>{eq.modelo}</td>
-                <td>{eq.usuario_asignado}</td>
-                <td>
-                  {eq.estado == 1 || eq.estado === true || eq.estado === "1"
-                    ? "✅ Activo"
-                    : "🛑 Inactivo"}
-                </td>
-                <td>
-                  <button
-                    className="buttomListaEquipo"
-                    onClick={() => onSelect(eq)}
-                  >
-                    Ver
-                  </button>
-                </td>
-              </tr>
-            ))}
+            {equipos.map((eq) => {
+              return (
+                <tr key={eq.id}>
+                  <td>{eq.tipo_equipo}</td>
+                  <td>{eq.marca}</td>
+                  <td>{eq.modelo}</td>
+                  <td>{eq.usuario_asignado}</td>
+                  <td>
+                    {eq.estado == 1 || eq.estado === true || eq.estado === "1"
+                      ? "✅ Activo"
+                      : "🛑 Inactivo"}
+                  </td>
+                  <td>
+                    <button
+                      className="buttomListaEquipo"
+                      onClick={() => onSelect(eq)}
+                    >
+                      Ver
+                    </button>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
