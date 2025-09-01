@@ -40,6 +40,8 @@ const FormularioEquipo = ({ onGuardar }) => {
     setOpenDropdown(null);
   };
 
+  
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const equipoParaEnviar = {
@@ -105,7 +107,7 @@ const FormularioEquipo = ({ onGuardar }) => {
                       setOpenDropdown(openDropdown === "tipo" ? null : "tipo")
                     }
                   >
-                    <span className="dropdown-value">
+                    <span className="dropdown-value" required>
                       {equipo.tipo_equipo || "Seleccionar tipo de equipo"}
                     </span>
                     <span className="dropdown-arrow">
@@ -143,6 +145,7 @@ const FormularioEquipo = ({ onGuardar }) => {
                   <div className="form-group">
                     <label>Especificar tipo:</label>
                     <input
+                      required
                       type="text"
                       placeholder="Ej. Proyector, Escáner"
                       value={otherTipo}
@@ -190,6 +193,7 @@ const FormularioEquipo = ({ onGuardar }) => {
                   <label>Activo Institucional:</label>
                   <input
                     name="activo_institucional"
+                    required
                     value={equipo.activo_institucional}
                     onChange={handleChange}
                     placeholder="SM-XXXX"
@@ -201,6 +205,7 @@ const FormularioEquipo = ({ onGuardar }) => {
                   <input
                     name="usuario_asignado"
                     value={equipo.usuario_asignado}
+                    required
                     onChange={handleChange}
                     placeholder="Nombre completo"
                   />
@@ -211,6 +216,7 @@ const FormularioEquipo = ({ onGuardar }) => {
                   <input
                     name="ubicacion"
                     value={equipo.ubicacion}
+                    required
                     onChange={handleChange}
                     placeholder="URGENCIA, ADMISIONES, ..."
                   />
@@ -230,6 +236,7 @@ const FormularioEquipo = ({ onGuardar }) => {
                     name="procesador"
                     value={equipo.procesador}
                     onChange={handleChange}
+                    required
                     placeholder="Intel i5-10400, ..."
                   />
                 </div>
@@ -239,6 +246,7 @@ const FormularioEquipo = ({ onGuardar }) => {
                     name="ram"
                     value={equipo.ram}
                     onChange={handleChange}
+                    required
                     placeholder="8 GB, 16 GB, ..."
                   />
                 </div>
@@ -247,6 +255,7 @@ const FormularioEquipo = ({ onGuardar }) => {
                   <input
                     name="disco"
                     value={equipo.disco}
+                    required
                     onChange={handleChange}
                     placeholder="256 GB SSD, 1 TB HDD, ..."
                   />
@@ -257,6 +266,7 @@ const FormularioEquipo = ({ onGuardar }) => {
                   <input
                     type="date"
                     name="fecha_compra"
+                    required
                     value={equipo.fecha_compra}
                     onChange={handleChange}
                   />
@@ -277,6 +287,7 @@ const FormularioEquipo = ({ onGuardar }) => {
                   <input
                     type="date"
                     name="fecha_instalacion"
+                    required
                     value={equipo.fecha_instalacion}
                     onChange={handleChange}
                   />
@@ -319,6 +330,7 @@ const FormularioEquipo = ({ onGuardar }) => {
                     <input
                       type="text"
                       name="ip"
+                      required
                       value={equipo.ip || ""}
                       onChange={(e) =>
                         setEquipo({ ...equipo, ip: e.target.value })
@@ -362,7 +374,7 @@ const FormularioEquipo = ({ onGuardar }) => {
           )}
         </div>
 
-        <button type="submit">Guardar Equipo</button>
+        <button type="submit" disabled={!openAccordion}>Guardar Equipo</button>
       </form>
     </div>
   );

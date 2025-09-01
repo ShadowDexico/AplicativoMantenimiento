@@ -35,8 +35,8 @@ const crearEquipo = async (req, res) => {
     ipActiva,
     ip,
     estado,
+    disco,
   } = req.body;
-  console.log("k", estado);
   try {
     const pool = await getConnection(); // Obtener la conexión antes de hacer la consulta
     const result = await pool
@@ -45,12 +45,13 @@ const crearEquipo = async (req, res) => {
       .input("marca", sql.NVarChar, marca)
       .input("modelo", sql.NVarChar, modelo)
       .input("serie", sql.NVarChar, serie)
-      .input("activo_institucional", sql.Bit, activo_institucional)
+      .input("activo_institucional", sql.NVarChar, activo_institucional)
       .input("usuario_asignado", sql.NVarChar, usuario_asignado)
       .input("ubicacion", sql.NVarChar, ubicacion)
       .input("sistema_operativo", sql.NVarChar, sistema_operativo)
       .input("procesador", sql.NVarChar, procesador)
       .input("ram", sql.NVarChar, ram)
+      .input("disco", sql.NVarChar, disco)
       .input("fecha_compra", sql.DateTime, fecha_compra)
       .input("nombre_dispositivo", sql.NVarChar, nombre_dispositivo)
       .input("fecha_instalacion", sql.DateTime, fecha_instalacion)
@@ -93,10 +94,12 @@ const actualizarEquipo = async (req, res) => {
     hora_fin,
     estado,
     usuarioBaja,
+    disco,
   } = req.body;
 
   try {
     const toDay = new Date();
+    const pool = await getConnection();
     const result = await pool
       .request()
       .input("id", sql.Int, id)
@@ -104,19 +107,20 @@ const actualizarEquipo = async (req, res) => {
       .input("marca", sql.NVarChar, marca)
       .input("modelo", sql.NVarChar, modelo)
       .input("serie", sql.NVarChar, serie)
-      .input("activo_institucional", sql.Bit, activo_institucional)
+      .input("activo_institucional", sql.NVarChar, activo_institucional)
       .input("usuario_asignado", sql.NVarChar, usuario_asignado)
       .input("ubicacion", sql.NVarChar, ubicacion)
       .input("sistema_operativo", sql.NVarChar, sistema_operativo)
       .input("procesador", sql.NVarChar, procesador)
       .input("ram", sql.Int, ram)
-      .input("fecha_compra", sql.Date, fecha_compra)
+      .input("disco", sql.NVarChar, disco)
+      .input("fecha_compra", sql.DateTime, fecha_compra)
       .input("nombre_dispositivo", sql.NVarChar, nombre_dispositivo)
-      .input("fecha_instalacion", sql.Date, fecha_instalacion)
+      .input("fecha_instalacion", sql.DateTime, fecha_instalacion)
       .input("ipActiva", sql.NVarChar, ipActiva)
       .input("ip", sql.NVarChar, ip)
       .input("tipo_mantenimiento", sql.NVarChar, tipo_mantenimiento)
-      .input("fecha_mantenimiento", sql.Date, fecha_mantenimiento)
+      .input("fecha_mantenimiento", sql.DateTime, fecha_mantenimiento)
       .input("hora_inicio", sql.Time, hora_inicio)
       .input("hora_fin", sql.Time, hora_fin)
       .input("estado", sql.Bit, estado)
@@ -136,10 +140,8 @@ const actualizarEquipo = async (req, res) => {
 // Dar de baja un equipo
 
 const darDeBajaEquipo = async (req, res) => {
-  console.log("req.body:", req.body);
-  console.log("req.params:", req.params);
   const { id } = req.params;
-  const { usuarioBaja } = req.body; // ← Ahora es `usuarioBaja`
+  const { usuarioBaja } = req.body;
 
   // Validar que se envíe el usuario
   if (!usuarioBaja || usuarioBaja.trim() === "") {
@@ -156,9 +158,6 @@ const darDeBajaEquipo = async (req, res) => {
       .input("id", sql.VarChar, id) // Ajusta a VarChar si usas string
       .input("usuarioBaja", sql.NVarChar, usuarioBaja)
       .query(queriesEquipo.uptbajaEquipo);
-
-    console.log(`✅ Equipo ${id} dado de baja por: ${usuarioBaja}`);
-
     res.status(200).json({ message: "Equipo dado de baja exitosamente" });
   } catch (err) {
     console.error("Error al dar de baja:", err.message);
@@ -171,26 +170,62 @@ const darDeBajaEquipo = async (req, res) => {
 
 // Agregar mantenimiento a un equipo
 const agregarMantenimiento = async (req, res) => {
-  const { id } = req.params;
-  const { tipo_mantenimiento, fecha_mantenimiento, hora_inicio, hora_fin } =
-    req.body;
+  const { id: equipoId } = req.params;
+  const {
+    tipo_mantenimiento,
+    fecha_mantenimiento,
+    hora_inicio,
+    hora_fin,
+    observaciones,
+  } = req.body;
+
+  // ✅ Validación básica
+  if (!tipo_mantenimiento || !tipo_mantenimiento.trim()) {
+    return res
+      .status(400)
+      .json({ message: "Tipo de mantenimiento es obligatorio" });
+  }
+  if (!fecha_mantenimiento) {
+    return res
+      .status(400)
+      .json({ message: "Fecha de mantenimiento es obligatoria" });
+  }
+  if (!hora_inicio || !hora_fin) {
+    return res.status(400).json({ message: "Las horas son obligatorias" });
+  }
 
   try {
-    const result = await pool
+    const pool = await getConnection();
+
+    // ✅ Formatear horas a HH:mm:ss para TIME(7)
+    const formatearHora = (hora) => {
+      if (!hora) return null;
+      // Si es HH:mm, convierte a HH:mm:ss
+      return hora.length === 5 ? `${hora}:00` : hora;
+    };
+
+    const horaInicioFormateada = formatearHora(hora_inicio);
+    const horaFinFormateada = formatearHora(hora_fin);
+
+    await pool
       .request()
-      .input("id", sql.Int, id)
+      .input("id", sql.VarChar, equipoId)
       .input("tipo_mantenimiento", sql.NVarChar, tipo_mantenimiento)
       .input("fecha_mantenimiento", sql.Date, fecha_mantenimiento)
-      .input("hora_inicio", sql.Time, hora_inicio)
-      .input("hora_fin", sql.Time, hora_fin)
-      .query(queriesEquipo.setEquipos); // Aquí agregarías la consulta de mantenimiento si es diferente
+      .input("hora_inicio", horaInicioFormateada) // ✅ Ahora es válido
+      .input("hora_fin", horaFinFormateada)
+      .input("observaciones", sql.NVarChar, observaciones || null)
+      .query(queriesEquipo.uptMantenimiento);
 
-    res.status(201).json({ message: "Mantenimiento agregado exitosamente" });
+    res.status(201).json({
+      message: "Mantenimiento registrado exitosamente",
+    });
   } catch (err) {
     console.error("Error al agregar mantenimiento:", err.message);
-    res
-      .status(500)
-      .json({ message: "Error al agregar mantenimiento", error: err.message });
+    res.status(500).json({
+      message: "Error al registrar mantenimiento",
+      error: err.message,
+    });
   }
 };
 
