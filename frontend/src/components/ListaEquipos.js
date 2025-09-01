@@ -23,7 +23,6 @@ const ListaEquipos = ({ onSelect }) => {
     return () => clearInterval(intervalId);
   }, [cargarEquipos, equipos]);
 
-
   return (
     <div>
       <h3>Equipos Registrados</h3>
@@ -40,29 +39,43 @@ const ListaEquipos = ({ onSelect }) => {
             </tr>
           </thead>
           <tbody>
-            {equipos.map((eq) => {
-              return (
-                <tr key={eq.id}>
-                  <td>{eq.tipo_equipo}</td>
-                  <td>{eq.marca}</td>
-                  <td>{eq.modelo}</td>
-                  <td>{eq.usuario_asignado}</td>
-                  <td>
-                    {eq.estado == 1 || eq.estado === true || eq.estado === "1"
-                      ? "✅ Activo"
-                      : "🛑 Inactivo"}
-                  </td>
-                  <td>
-                    <button
-                      className="buttomListaEquipo"
-                      onClick={() => onSelect(eq)}
-                    >
-                      Ver
-                    </button>
-                  </td>
-                </tr>
-              );
-            })}
+            {equipos.length > 0 ? (
+              equipos.map((eq) => {
+                return (
+                  <tr key={eq.id}>
+                    <td>{eq.tipo_equipo}</td>
+                    <td>{eq.marca}</td>
+                    <td>{eq.modelo}</td>
+                    <td>{eq.usuario_asignado}</td>
+                    <td>
+                      {eq.estado === 1 ||
+                      eq.estado === true ||
+                      eq.estado === "1"
+                        ? "✅ Activo"
+                        : eq.estado === 0 ||
+                          eq.estado === false ||
+                          eq.estado === "0"
+                        ? "🛑 Inactivo"
+                        : "🚫 Dado de baja"}
+                    </td>
+                    <td>
+                      <button
+                        className="buttomListaEquipo"
+                        onClick={() => onSelect(eq)}
+                      >
+                        Ver
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })
+            ) : (
+              <tr>
+                <td colSpan="6" style={{ textAlign: "center" }}>
+                  No hay equipos registrados
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>

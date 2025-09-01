@@ -34,13 +34,9 @@ const crearEquipo = async (req, res) => {
     fecha_instalacion,
     ipActiva,
     ip,
-    tipo_mantenimiento,
-    fecha_mantenimiento,
-    hora_inicio,
-    hora_fin,
     estado,
   } = req.body;
-  console.log('k', estado);
+  console.log("k", estado);
   try {
     const pool = await getConnection(); // Obtener la conexión antes de hacer la consulta
     const result = await pool
@@ -60,10 +56,6 @@ const crearEquipo = async (req, res) => {
       .input("fecha_instalacion", sql.DateTime, fecha_instalacion)
       .input("ipActiva", sql.Bit, ipActiva)
       .input("ip", sql.NVarChar, ip)
-      .input("tipo_mantenimiento", sql.NVarChar, tipo_mantenimiento || null)
-      .input("fecha_mantenimiento", sql.DateTime, fecha_mantenimiento || null)
-      .input("hora_inicio", sql.Time, hora_inicio || null)
-      .input("hora_fin", sql.Time, hora_fin || null)
       .input("estado", sql.Bit, estado)
       .query(queriesEquipo.setEquipos);
 
@@ -99,9 +91,12 @@ const actualizarEquipo = async (req, res) => {
     fecha_mantenimiento,
     hora_inicio,
     hora_fin,
+    estado,
+    usuarioBaja,
   } = req.body;
 
   try {
+    const toDay = new Date();
     const result = await pool
       .request()
       .input("id", sql.Int, id)
@@ -124,6 +119,9 @@ const actualizarEquipo = async (req, res) => {
       .input("fecha_mantenimiento", sql.Date, fecha_mantenimiento)
       .input("hora_inicio", sql.Time, hora_inicio)
       .input("hora_fin", sql.Time, hora_fin)
+      .input("estado", sql.Bit, estado)
+      .input("usuarioBaja", sql.NVarChar, usuarioBaja || null)
+      .input("fechaBaja", sql.DateTime, toDay || null)
       .query(queriesEquipo.uptEquipos);
 
     res.status(200).json({ message: "Equipo actualizado exitosamente" });
@@ -136,20 +134,38 @@ const actualizarEquipo = async (req, res) => {
 };
 
 // Dar de baja un equipo
+
 const darDeBajaEquipo = async (req, res) => {
+  console.log("req.body:", req.body);
+  console.log("req.params:", req.params);
   const { id } = req.params;
+  const { usuarioBaja } = req.body; // ← Ahora es `usuarioBaja`
+
+  // Validar que se envíe el usuario
+  if (!usuarioBaja || usuarioBaja.trim() === "") {
+    return res.status(400).json({
+      message: "El usuario que da de baja es obligatorio",
+    });
+  }
 
   try {
+    const pool = await getConnection();
+
     await pool
       .request()
-      .input("id", sql.Int, id)
-      .query(queriesEquipo.delEquipos);
+      .input("id", sql.VarChar, id) // Ajusta a VarChar si usas string
+      .input("usuarioBaja", sql.NVarChar, usuarioBaja)
+      .query(queriesEquipo.uptbajaEquipo);
+
+    console.log(`✅ Equipo ${id} dado de baja por: ${usuarioBaja}`);
+
     res.status(200).json({ message: "Equipo dado de baja exitosamente" });
   } catch (err) {
-    console.error("Error al dar de baja equipo:", err.message);
-    res
-      .status(500)
-      .json({ message: "Error al dar de baja equipo", error: err.message });
+    console.error("Error al dar de baja:", err.message);
+    res.status(500).json({
+      message: "Error al dar de baja",
+      error: err.message,
+    });
   }
 };
 

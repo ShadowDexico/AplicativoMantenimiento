@@ -23,14 +23,17 @@ const DetalleEquipo = ({ equipo, onVolver, onActualizar }) => {
   };
 
   const handleBaja = () => {
-    const responsable = prompt("¿Quién da de baja el equipo?");
-    if (responsable) {
-      darDeBajaEquipo(equipo.id, { responsableBaja: responsable })
+    const usuarioBaja = prompt("¿Quién da de baja el equipo?");
+    if (usuarioBaja) {
+      darDeBajaEquipo(equipo.id, { usuarioBaja }) // ← clave: nombre correcto
         .then(() => {
           alert("Equipo dado de baja");
           onVolver();
         })
-        .catch(() => alert("Error"));
+        .catch((err) => {
+          console.error("Error al dar de baja:", err);
+          alert("Error al dar de baja");
+        });
     }
   };
 
@@ -80,11 +83,15 @@ const DetalleEquipo = ({ equipo, onVolver, onActualizar }) => {
             </p>
             <p>
               <strong>Estado:</strong>{" "}
-              {equipo.estado == 1 ||
+              {equipo.estado === 1 ||
               equipo.estado === true ||
               equipo.estado === "1"
                 ? "✅ Activo"
-                : "🛑 Inactivo"}
+                : equipo.estado === 0 ||
+                  equipo.estado === false ||
+                  equipo.estado === "0"
+                ? "🛑 Inactivo"
+                : "🚫 Dado de baja"}
             </p>
 
             <button
@@ -95,9 +102,7 @@ const DetalleEquipo = ({ equipo, onVolver, onActualizar }) => {
             </button>
 
             {/* Mostrar botón "Dar de baja" solo si está activo */}
-            {(equipo.estado == 1 ||
-              equipo.estado === true ||
-              equipo.estado === "1") && (
+            {equipo.estado !== null && (
               <button className="buttomDetalleEquipo" onClick={handleBaja}>
                 🗑️ Dar de baja
               </button>
