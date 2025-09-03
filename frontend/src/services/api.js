@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const API = axios.create({
-    baseURL: 'http://localhost:5000/api',
+    baseURL: 'http://10.20.2.170:3150/api',
 });
 
 export const getEquipos = () => API.get('/equipos');

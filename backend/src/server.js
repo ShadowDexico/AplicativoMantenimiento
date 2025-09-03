@@ -4,7 +4,7 @@ const cors = require('cors');
 const equiposRoutes = require('./routes/equipos');
 
 const app = express();
-const PORT = 5000;
+const PORT = 3150;
 
 app.use(cors());
 app.use(express.json());

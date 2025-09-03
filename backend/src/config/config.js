@@ -1,5 +1,5 @@
 require("dotenv").config();
-// console.log(process.env);
+
 
 const config = {
   port: process.env.PORT || 3130,
@@ -9,7 +9,7 @@ const config = {
   dbDatabase: process.env.DB_DATABASE || "",
 };
 
-console.log(config);
+
 
 // Exportar la conexión y el pool
 module.exports = config;

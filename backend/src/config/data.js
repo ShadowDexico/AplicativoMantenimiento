@@ -17,29 +17,8 @@ const dbSettings = {
   },
 };
 
-
-// const dbSettings = {
-//   user: process.env.DB_USER,
-//   password: process.env.DB_PASSWORD,
-//   server: process.env.DB_SERVER,
-//   database: process.env.DB_NAME,
-//   options: {
-//     encrypt: true,
-//     trustServerCertificate: true,
-//   },
-// };
-
 let pool;
 
-// const connectDB = async () => {
-//   try {
-//     pool = await sql.connect(config);
-//     console.log("Conectado a SQL Server");
-//   } catch (err) {
-//     console.error("Error al conectar a SQL Server:", err.message);
-//     process.exit(1); // Detenemos la ejecución si no podemos conectar
-//   }
-// };
 
 async function getConnection() {
   try {
