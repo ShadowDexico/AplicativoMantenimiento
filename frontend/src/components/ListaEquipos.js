@@ -1,31 +1,64 @@
 import "../assets/ListaEquipos.css";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { getEquipos } from "../services/api";
 
 const ListaEquipos = ({ onSelect }) => {
   const [equipos, setEquipos] = useState([]);
+  const [busqueda, setBusqueda] = useState("");
 
-  const cargarEquipos = async () => {
+  const cargarEquipos = useCallback(async () => {
     try {
       const res = await getEquipos();
       setEquipos(res.data);
     } catch (err) {
-      alert("Error al cargar equipos");
+      console.error("Error al cargar equipos:", err);
     }
-  };
+  }, []);
 
   useEffect(() => {
+    cargarEquipos();
+
     const intervalId = setInterval(
       cargarEquipos,
-      equipos?.length > 0 ? 60000 : 100
+      equipos.length > 0 ? 60000 : 3000
     );
 
     return () => clearInterval(intervalId);
-  }, [cargarEquipos, equipos]);
+  }, [cargarEquipos, equipos.length]);
+
+  const equiposFiltrados = equipos.filter(
+    (eq) =>
+      (eq.tipo_equipo?.toLowerCase() || "").includes(busqueda.toLowerCase()) ||
+      (eq.marca?.toLowerCase() || "").includes(busqueda.toLowerCase()) ||
+      (eq.modelo?.toLowerCase() || "").includes(busqueda.toLowerCase()) ||
+      (eq.usuario_asignado?.toLowerCase() || "").includes(
+        busqueda.toLowerCase()
+      ) ||
+      (eq.serie?.toLowerCase() || "").includes(busqueda.toLowerCase()) ||
+      (eq.ubicacion?.toLowerCase() || "").includes(busqueda.toLowerCase()) ||
+      (eq.activo_institucional?.toLowerCase() || "").includes(
+        busqueda.toLowerCase()
+      )
+  );
 
   return (
     <div>
       <h3>Equipos Registrados</h3>
+
+      {/* 🔍 Barra de búsqueda con onChange */}
+      <div
+        className="search-container"
+        style={{ textAlign: "center", marginBottom: "20px" }}
+      >
+        <input
+          type="text"
+          placeholder="Buscar en columna..."
+          value={busqueda}
+          onChange={(e) => {
+            setBusqueda(e.target.value); // onChange actualiza el estado en tiempo real
+          }}
+        />
+      </div>
       <div className="table-container">
         <table border="1" cellPadding="8">
           <thead>
@@ -33,20 +66,22 @@ const ListaEquipos = ({ onSelect }) => {
               <th>Tipo</th>
               <th>Marca</th>
               <th>Modelo</th>
-              <th>Usuario</th>
+              <th>Responsable</th>
+              <th>Ubicación</th>
               <th>Estado</th>
               <th>Acción</th>
             </tr>
           </thead>
           <tbody>
-            {equipos.length > 0 ? (
-              equipos.map((eq) => {
+            {equiposFiltrados.length > 0 ? (
+              equiposFiltrados.map((eq) => {
                 return (
                   <tr key={eq.id}>
                     <td>{eq.tipo_equipo}</td>
                     <td>{eq.marca}</td>
                     <td>{eq.modelo}</td>
                     <td>{eq.usuario_asignado}</td>
+                    <td>{eq.ubicacion}</td>
                     <td>
                       {eq.estado === 1 ||
                       eq.estado === true ||
