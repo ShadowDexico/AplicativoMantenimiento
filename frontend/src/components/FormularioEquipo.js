@@ -29,6 +29,7 @@ const FormularioEquipo = ({ onGuardar }) => {
 
   const [openDropdown, setOpenDropdown] = useState(null);
   const [otherTipo, setOtherTipo] = useState("");
+  const [formError, setFormError] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -38,12 +39,15 @@ const FormularioEquipo = ({ onGuardar }) => {
   const handleSelectTipo = (value) => {
     setEquipo({ ...equipo, tipo_equipo: value });
     setOpenDropdown(null);
+    setFormError(false);
   };
-
-  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!equipo.tipo_equipo) {
+      setFormError(true); // Mostrar error si no se seleccionó ningún tipo
+      return;
+    }
     const equipoParaEnviar = {
       ...equipo,
       estado: equipo.estado ? 1 : 0,
@@ -140,7 +144,11 @@ const FormularioEquipo = ({ onGuardar }) => {
                     </div>
                   )}
                 </div>
-
+                {formError && (
+                  <p style={{ color: "red" }}>
+                    Por favor, selecciona un tipo de equipo.
+                  </p>
+                )}{" "}
                 {equipo.tipo_equipo === "Otro" && (
                   <div className="form-group">
                     <label>Especificar tipo:</label>
@@ -157,7 +165,6 @@ const FormularioEquipo = ({ onGuardar }) => {
                     />
                   </div>
                 )}
-
                 <div>
                   <label>Marca:</label>
                   <input
@@ -178,7 +185,6 @@ const FormularioEquipo = ({ onGuardar }) => {
                     placeholder="Inspiron 3501, ..."
                   />
                 </div>
-
                 <div>
                   <label>N° Serie:</label>
                   <input
@@ -199,9 +205,8 @@ const FormularioEquipo = ({ onGuardar }) => {
                     placeholder="SM-XXXX"
                   />
                 </div>
-
                 <div>
-                  <label>Usuario:</label>
+                  <label>Responsable:</label>
                   <input
                     name="usuario_asignado"
                     value={equipo.usuario_asignado}
@@ -210,7 +215,6 @@ const FormularioEquipo = ({ onGuardar }) => {
                     placeholder="Nombre completo"
                   />
                 </div>
-
                 <div>
                   <label>Ubicación:</label>
                   <input
@@ -260,7 +264,6 @@ const FormularioEquipo = ({ onGuardar }) => {
                     placeholder="256 GB SSD, 1 TB HDD, ..."
                   />
                 </div>
-
                 <div>
                   <label>Fecha de compra:</label>
                   <input
@@ -271,7 +274,6 @@ const FormularioEquipo = ({ onGuardar }) => {
                     onChange={handleChange}
                   />
                 </div>
-
                 <div>
                   <label>Nombre del dispositivo:</label>
                   <input
@@ -281,7 +283,6 @@ const FormularioEquipo = ({ onGuardar }) => {
                     placeholder="PC-Servicios, ..."
                   />
                 </div>
-
                 <div>
                   <label>Fecha de instalación:</label>
                   <input
@@ -292,7 +293,6 @@ const FormularioEquipo = ({ onGuardar }) => {
                     onChange={handleChange}
                   />
                 </div>
-
                 <div>
                   <label>¿Tiene IP?</label>
                   <div className="radio-group">
@@ -322,8 +322,6 @@ const FormularioEquipo = ({ onGuardar }) => {
                     </label>
                   </div>
                 </div>
-
-                {/* Campo IP condicional */}
                 {equipo.ipActiva && (
                   <div>
                     <label>Dirección IP:</label>
@@ -341,7 +339,6 @@ const FormularioEquipo = ({ onGuardar }) => {
                     />
                   </div>
                 )}
-
                 <div>
                   <label>¿Equipo activo?</label>
                   <div className="radio-group">
@@ -367,14 +364,15 @@ const FormularioEquipo = ({ onGuardar }) => {
                     </label>
                   </div>
                 </div>
-
                 <div></div>
               </div>
             </div>
           )}
         </div>
 
-        <button type="submit" disabled={!openAccordion}>Guardar Equipo</button>
+        <button type="submit" disabled={!openAccordion}>
+          Guardar Equipo
+        </button>
       </form>
     </div>
   );
