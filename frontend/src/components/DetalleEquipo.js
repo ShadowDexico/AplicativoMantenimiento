@@ -30,6 +30,11 @@ const DetalleEquipo = ({ equipo, onVolver, onActualizar }) => {
   }, [equipo.id]);
 
   const handleActualizar = () => {
+    setEquipoEdit({
+      ...equipo,
+      ipActiva: equipo.ipActiva === 1 || equipo.ipActiva === true,
+      estado: equipo.estado === 1 || equipo.estado === true,
+    });
     setEditando(true);
   };
 
@@ -39,7 +44,7 @@ const DetalleEquipo = ({ equipo, onVolver, onActualizar }) => {
       setEditando(false);
       alert("Equipo actualizado");
     } catch (err) {
-      alert("Error");
+      alert("Error al actualizar");
     }
   };
 
@@ -62,30 +67,278 @@ const DetalleEquipo = ({ equipo, onVolver, onActualizar }) => {
       <div>
         <h3>Detalles del Equipo</h3>
         {editando ? (
-          <div>
-            <input
-              name="marca"
-              value={equipoEdit.marca}
-              onChange={(e) =>
-                setEquipoEdit({ ...equipoEdit, marca: e.target.value })
-              }
-            />
-            <input
-              name="modelo"
-              value={equipoEdit.modelo}
-              onChange={(e) =>
-                setEquipoEdit({ ...equipoEdit, modelo: e.target.value })
-              }
-            />
-            <button className="buttomDetalleEquipo" onClick={handleGuardar}>
-              Guardar
-            </button>
-            <button
-              className="buttomDetalleEquipo"
-              onClick={() => setEditando(false)}
+          <div style={{ marginTop: "20px" }}>
+            <div
+              className="form-grid"
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gap: "12px",
+              }}
             >
-              Cancelar
-            </button>
+              <div>
+                <label>Tipo de equipo:</label>
+                <input
+                  name="tipo_equipo"
+                  value={equipoEdit.tipo_equipo || ""}
+                  onChange={(e) =>
+                    setEquipoEdit({
+                      ...equipoEdit,
+                      tipo_equipo: e.target.value,
+                    })
+                  }
+                  style={{ width: "100%" }}
+                />
+              </div>
+              <div>
+                <label>Marca:</label>
+                <input
+                  name="marca"
+                  value={equipoEdit.marca || ""}
+                  onChange={(e) =>
+                    setEquipoEdit({ ...equipoEdit, marca: e.target.value })
+                  }
+                  style={{ width: "100%" }}
+                />
+              </div>
+              <div>
+                <label>Modelo:</label>
+                <input
+                  name="modelo"
+                  value={equipoEdit.modelo || ""}
+                  onChange={(e) =>
+                    setEquipoEdit({ ...equipoEdit, modelo: e.target.value })
+                  }
+                  style={{ width: "100%" }}
+                />
+              </div>
+              <div>
+                <label>Serie:</label>
+                <input
+                  name="serie"
+                  value={equipoEdit.serie || ""}
+                  onChange={(e) =>
+                    setEquipoEdit({ ...equipoEdit, serie: e.target.value })
+                  }
+                  style={{ width: "100%" }}
+                />
+              </div>
+              <div>
+                <label>Activo Institucional:</label>
+                <input
+                  name="activo_institucional"
+                  value={equipoEdit.activo_institucional || ""}
+                  onChange={(e) =>
+                    setEquipoEdit({
+                      ...equipoEdit,
+                      activo_institucional: e.target.value,
+                    })
+                  }
+                  style={{ width: "100%" }}
+                />
+              </div>
+              <div>
+                <label>Usuario asignado:</label>
+                <input
+                  name="usuario_asignado"
+                  value={equipoEdit.usuario_asignado || ""}
+                  onChange={(e) =>
+                    setEquipoEdit({
+                      ...equipoEdit,
+                      usuario_asignado: e.target.value,
+                    })
+                  }
+                  style={{ width: "100%" }}
+                />
+              </div>
+              <div>
+                <label>Ubicación:</label>
+                <input
+                  name="ubicacion"
+                  value={equipoEdit.ubicacion || ""}
+                  onChange={(e) =>
+                    setEquipoEdit({ ...equipoEdit, ubicacion: e.target.value })
+                  }
+                  style={{ width: "100%" }}
+                />
+              </div>
+              <div>
+                <label>Sistema Operativo:</label>
+                <input
+                  name="sistema_operativo"
+                  value={equipoEdit.sistema_operativo || ""}
+                  onChange={(e) =>
+                    setEquipoEdit({
+                      ...equipoEdit,
+                      sistema_operativo: e.target.value,
+                    })
+                  }
+                  style={{ width: "100%" }}
+                />
+              </div>
+              <div>
+                <label>Procesador:</label>
+                <input
+                  name="procesador"
+                  value={equipoEdit.procesador || ""}
+                  onChange={(e) =>
+                    setEquipoEdit({ ...equipoEdit, procesador: e.target.value })
+                  }
+                  style={{ width: "100%" }}
+                />
+              </div>
+              <div>
+                <label>RAM:</label>
+                <input
+                  name="ram"
+                  value={equipoEdit.ram || ""}
+                  onChange={(e) =>
+                    setEquipoEdit({ ...equipoEdit, ram: e.target.value })
+                  }
+                  style={{ width: "100%" }}
+                />
+              </div>
+              <div>
+                <label>Disco:</label>
+                <input
+                  name="disco"
+                  value={equipoEdit.disco || ""}
+                  onChange={(e) =>
+                    setEquipoEdit({ ...equipoEdit, disco: e.target.value })
+                  }
+                  style={{ width: "100%" }}
+                />
+              </div>
+              <div>
+                <label>Fecha de compra:</label>
+                <input
+                  type="date"
+                  name="fecha_compra"
+                  value={equipoEdit.fecha_compra?.split("T")[0]}
+                  onChange={(e) =>
+                    setEquipoEdit({
+                      ...equipoEdit,
+                      fecha_compra: e.target.value,
+                    })
+                  }
+                  style={{ width: "100%" }}
+                />
+              </div>
+              <div>
+                <label>Nombre del dispositivo:</label>
+                <input
+                  name="nombre_dispositivo"
+                  value={equipoEdit.nombre_dispositivo || ""}
+                  onChange={(e) =>
+                    setEquipoEdit({
+                      ...equipoEdit,
+                      nombre_dispositivo: e.target.value,
+                    })
+                  }
+                  style={{ width: "100%" }}
+                />
+              </div>
+              <div>
+                <label>Fecha de instalación:</label>
+                <input
+                  type="date"
+                  name="fecha_instalacion"
+                  value={equipoEdit.fecha_instalacion?.split("T")[0]}
+                  onChange={(e) =>
+                    setEquipoEdit({
+                      ...equipoEdit,
+                      fecha_instalacion: e.target.value,
+                    })
+                  }
+                  style={{ width: "100%" }}
+                />
+              </div>
+              <div>
+                <label>¿Tiene IP?</label>
+                <div className="radio-group">
+                  <label>
+                    <input
+                      type="radio"
+                      name="ipActiva"
+                      checked={equipoEdit.ipActiva}
+                      onChange={() =>
+                        setEquipoEdit({ ...equipoEdit, ipActiva: true })
+                      }
+                    />
+                    Sí
+                  </label>
+                  <label style={{ marginLeft: "16px" }}>
+                    <input
+                      type="radio"
+                      name="ipActiva"
+                      checked={!equipoEdit.ipActiva}
+                      onChange={() =>
+                        setEquipoEdit({ ...equipoEdit, ipActiva: false })
+                      }
+                    />
+                    No
+                  </label>
+                </div>
+              </div>
+              {equipoEdit.ipActiva && (
+                <div>
+                  <label>Dirección IP:</label>
+                  <input
+                    type="text"
+                    name="ip"
+                    value={equipoEdit.ip || ""}
+                    onChange={(e) =>
+                      setEquipoEdit({ ...equipoEdit, ip: e.target.value })
+                    }
+                    style={{ width: "100%" }}
+                  />
+                </div>
+              )}
+              <div>
+                <label>Estado:</label>
+                <div className="radio-group">
+                  <label>
+                    <input
+                      type="radio"
+                      name="estado"
+                      checked={
+                        equipoEdit.estado === 1 || equipoEdit.estado === true
+                      }
+                      onChange={() =>
+                        setEquipoEdit({ ...equipoEdit, estado: 1 })
+                      }
+                    />
+                    Activo
+                  </label>
+                  <label style={{ marginLeft: "16px" }}>
+                    <input
+                      type="radio"
+                      name="estado"
+                      checked={
+                        equipoEdit.estado === 0 || equipoEdit.estado === false
+                      }
+                      onChange={() =>
+                        setEquipoEdit({ ...equipoEdit, estado: 0 })
+                      }
+                    />
+                    Inactivo
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <div style={{ marginTop: "20px" }}>
+              <button className="buttomDetalleEquipo" onClick={handleGuardar}>
+                Guardar Cambios
+              </button>
+              <button
+                className="buttomDetalleEquipo"
+                onClick={() => setEditando(false)}
+                style={{ marginLeft: "10px" }}
+              >
+                Cancelar
+              </button>
+            </div>
           </div>
         ) : (
           <div>
