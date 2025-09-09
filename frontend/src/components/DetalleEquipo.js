@@ -1,12 +1,33 @@
 import "../assets/DetalleEquipo.css";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import ModalMantenimiento from "./ModalMantenimiento";
+import { getMantenimientosPorEquipo } from "../services/api";
 import { darDeBajaEquipo } from "../services/api";
 
 const DetalleEquipo = ({ equipo, onVolver, onActualizar }) => {
   const [editando, setEditando] = useState(false);
   const [equipoEdit, setEquipoEdit] = useState({ ...equipo });
   const [showModal, setShowModal] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [mantenimientos, setMantenimientos] = useState([]);
+
+  useEffect(() => {
+    const cargar = async () => {
+      setLoading(true);
+      try {
+        const res = await getMantenimientosPorEquipo(equipo.id);
+        setMantenimientos(res.data);
+      } catch (err) {
+        alert("Error al cargar el historial de mantenimientos");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (equipo.id) {
+      cargar();
+    }
+  }, [equipo.id]);
 
   const handleActualizar = () => {
     setEditando(true);
@@ -36,7 +57,6 @@ const DetalleEquipo = ({ equipo, onVolver, onActualizar }) => {
         });
     }
   };
-
   return (
     <div className="detalle-container">
       <div>
@@ -116,30 +136,64 @@ const DetalleEquipo = ({ equipo, onVolver, onActualizar }) => {
           </div>
         )}
 
-        {equipo.mantenimientos && equipo.mantenimientos.length > 0 && (
-          <div>
-            <h4>Mantenimientos</h4>
-            <ul>
-              {equipo.mantenimientos.map((m) => (
-                <li key={m.id}>
-                  {m.tipoMantenimiento} - {m.fechaMantenimiento} ({m.horaInicio}{" "}
-                  a {m.horaFin})
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-
         {showModal && (
           <ModalMantenimiento
             equipoId={equipo.id}
             onClose={() => setShowModal(false)}
-            onGuardar={() => {
-              alert("Mantenimiento agregado");
-              // Recargar detalle
+            onGuardar={async () => {
+              try {
+                const res = await getMantenimientosPorEquipo(equipo.id);
+                setMantenimientos(res.data);
+                alert("Mantenimiento agregado y listado actualizado");
+              } catch (err) {
+                alert("Error al cargar el historial actualizado");
+              } finally {
+                setShowModal(false);
+              }
             }}
           />
         )}
+        {/* Historial de mantenimientos */}
+        <div className="historial-mantenimientos">
+          <h4 className="titulo-historial">📋 Historial de Mantenimientos</h4>
+          {loading ? (
+            <p className="mensaje-info">Cargando mantenimientos...</p>
+          ) : mantenimientos.length === 0 ? (
+            <p className="mensaje-info">
+              No se han registrado mantenimientos para este equipo.
+            </p>
+          ) : (
+            <table className="tabla-mantenimientos">
+              <thead>
+                <tr>
+                  <th>Tipo</th>
+                  <th>Fecha</th>
+                  <th>Hora</th>
+                  <th>Observaciones</th>
+                  <th>Registrado por</th>
+                  <th>Fecha registro</th>
+                </tr>
+              </thead>
+              <tbody>
+                {mantenimientos.map((m) => (
+                  <tr key={m.id}>
+                    <td>{m.tipo_mantenimiento}</td>
+                    <td>
+                      {new Date(m.fecha_mantenimiento).toLocaleDateString()}
+                    </td>
+                    <td>
+                      {m.hora_inicio.split("T")[1].slice(0, 5)} -{" "}
+                      {m.hora_fin.split("T")[1].slice(0, 5)}
+                    </td>
+                    <td>{m.observaciones || "-"}</td>
+                    <td>{m.usuario_registro}</td>
+                    <td>{new Date(m.fecha_registro).toLocaleString()}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
       </div>
     </div>
   );

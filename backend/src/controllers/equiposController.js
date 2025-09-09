@@ -177,8 +177,22 @@ const agregarMantenimiento = async (req, res) => {
     hora_inicio,
     hora_fin,
     observaciones,
+    usuario_registro,
   } = req.body;
 
+
+  if (
+    !tipo_mantenimiento ||
+    !fecha_mantenimiento ||
+    !hora_inicio ||
+    !hora_fin ||
+    !usuario_registro
+  ) {
+    return res.status(400).json({
+      message:
+        "Todos los campos son obligatorios, incluyendo 'quien realizó el mantenimiento'",
+    });
+  }
   // ✅ Validación básica
   if (!tipo_mantenimiento || !tipo_mantenimiento.trim()) {
     return res
@@ -209,13 +223,14 @@ const agregarMantenimiento = async (req, res) => {
 
     await pool
       .request()
-      .input("id", sql.VarChar, equipoId)
+      .input("equipoId", sql.Int, parseInt(equipoId))
       .input("tipo_mantenimiento", sql.NVarChar, tipo_mantenimiento)
       .input("fecha_mantenimiento", sql.Date, fecha_mantenimiento)
-      .input("hora_inicio", horaInicioFormateada) // ✅ Ahora es válido
-      .input("hora_fin", horaFinFormateada)
+      .input("hora_inicio",horaInicioFormateada)
+      .input("hora_fin",horaFinFormateada)
       .input("observaciones", sql.NVarChar, observaciones || null)
-      .query(queriesEquipo.uptMantenimiento);
+      .input("usuario_registro", sql.NVarChar, usuario_registro)
+      .query(queriesEquipo.setMantenimiento);
 
     res.status(201).json({
       message: "Mantenimiento registrado exitosamente",
@@ -229,10 +244,31 @@ const agregarMantenimiento = async (req, res) => {
   }
 };
 
+const getMantenimientosPorEquipo = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const pool = await getConnection();
+    const result = await pool
+      .request()
+      .input("equipoId", sql.Int, parseInt(id))
+      .query(queriesEquipo.getMantenimientosPorEquipo);
+
+    res.status(200).json(result.recordset);
+  } catch (err) {
+    console.error("Error al obtener mantenimientos:", err.message);
+    res.status(500).json({
+      message: "Error al obtener mantenimientos",
+      error: err.message,
+    });
+  }
+};
+
 module.exports = {
   getEquipos,
   crearEquipo,
   actualizarEquipo,
   darDeBajaEquipo,
   agregarMantenimiento,
+  getMantenimientosPorEquipo,
 };

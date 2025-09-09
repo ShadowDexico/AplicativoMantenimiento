@@ -1,7 +1,6 @@
-
-const express = require('express');
-const cors = require('cors');
-const equiposRoutes = require('./routes/equipos');
+const express = require("express");
+const cors = require("cors");
+const equiposRoutes = require("./routes/equipos");
 
 const app = express();
 const PORT = 3150;
@@ -9,8 +8,8 @@ const PORT = 3150;
 app.use(cors());
 app.use(express.json());
 
-app.use('/api/equipos', equiposRoutes);
+app.use("/api/equipos", equiposRoutes);
 
 app.listen(PORT, () => {
-    console.log(`Servidor backend corriendo en http://localhost:${PORT}`);
+  console.log(`Servidor backend corriendo en http://localhost:${PORT}`);
 });

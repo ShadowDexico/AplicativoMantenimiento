@@ -9,6 +9,7 @@ const ModalMantenimiento = ({ equipoId, onClose, onGuardar }) => {
     hora_inicio: "",
     hora_fin: "",
     observaciones: "",
+    usuario_registro: "",
   });
 
   const [errores, setErrores] = useState({});
@@ -47,6 +48,10 @@ const ModalMantenimiento = ({ equipoId, onClose, onGuardar }) => {
     } else if (!/^[0-2]\d:[0-5]\d$/.test(mantenimiento.hora_fin)) {
       nuevosErrores.hora_fin = "Formato de hora inválido";
     }
+    if (!mantenimiento.usuario_registro.trim()) {
+      nuevosErrores.usuario_registro =
+        "Debe indicar la persona que realizó el mantenimiento";
+    }
 
     setErrores(nuevosErrores);
     return Object.keys(nuevosErrores).length === 0;
@@ -55,7 +60,7 @@ const ModalMantenimiento = ({ equipoId, onClose, onGuardar }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validar()) return;
-    console.log("🔍 Enviando mantenimiento:", mantenimiento);
+    console.log("Enviando mantenimiento:", mantenimiento);
     try {
       await agregarMantenimiento(equipoId, mantenimiento);
       onGuardar(); // Notificar al padre
@@ -85,7 +90,7 @@ const ModalMantenimiento = ({ equipoId, onClose, onGuardar }) => {
                 <label key={tipo} className="checkbox-label">
                   <input
                     type="checkbox"
-                    name="tipo_mantenimiento" // ✅ Nombre correcto
+                    name="tipo_mantenimiento"
                     value={tipo}
                     checked={mantenimiento.tipo_mantenimiento === tipo}
                     onChange={handleChange}
@@ -104,7 +109,7 @@ const ModalMantenimiento = ({ equipoId, onClose, onGuardar }) => {
                   })
                 }
                 className="input-otro"
-                name="tipo_mantenimiento" // ✅ Para que handleChange lo capture bien
+                name="tipo_mantenimiento"
               />
             </div>
             {errores.tipo_mantenimiento && (
@@ -159,6 +164,23 @@ const ModalMantenimiento = ({ equipoId, onClose, onGuardar }) => {
                 <span className="error-message">{errores.hora_fin}</span>
               )}
             </div>
+          </div>
+
+          {/* Persona que realizó el mantenimiento */}
+          <div className="form-group">
+            <label>Persona que realizó el mantenimiento:</label>
+            <input
+              type="text"
+              name="usuario_registro"
+              value={mantenimiento.usuario_registro}
+              onChange={handleChange}
+              placeholder="Nombre completo"
+              className={errores.usuario_registro ? "input-error" : ""}
+              style={{ width: "100%" }}
+            />
+            {errores.usuario_registro && (
+              <span className="error-message">{errores.usuario_registro}</span>
+            )}
           </div>
 
           {/* Observaciones */}
