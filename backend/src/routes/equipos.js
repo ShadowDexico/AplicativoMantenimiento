@@ -7,6 +7,7 @@ const {
   darDeBajaEquipo,
   agregarMantenimiento,
   getMantenimientosPorEquipo,
+  eliminarEquipo,
 } = require("../controllers/equiposController");
 
 router.get("/", getEquipos);
@@ -15,5 +16,6 @@ router.put("/:id", actualizarEquipo);
 router.patch("/:id/baja", darDeBajaEquipo);
 router.post("/:id/mantenimientos", agregarMantenimiento);
 router.get("/:id/mantenimientos", getMantenimientosPorEquipo);
+router.delete("/:id", eliminarEquipo);
 
 module.exports = router;

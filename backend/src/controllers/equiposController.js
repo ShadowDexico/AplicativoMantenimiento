@@ -180,7 +180,6 @@ const agregarMantenimiento = async (req, res) => {
     usuario_registro,
   } = req.body;
 
-
   if (
     !tipo_mantenimiento ||
     !fecha_mantenimiento ||
@@ -226,8 +225,8 @@ const agregarMantenimiento = async (req, res) => {
       .input("equipoId", sql.Int, parseInt(equipoId))
       .input("tipo_mantenimiento", sql.NVarChar, tipo_mantenimiento)
       .input("fecha_mantenimiento", sql.Date, fecha_mantenimiento)
-      .input("hora_inicio",horaInicioFormateada)
-      .input("hora_fin",horaFinFormateada)
+      .input("hora_inicio", horaInicioFormateada)
+      .input("hora_fin", horaFinFormateada)
       .input("observaciones", sql.NVarChar, observaciones || null)
       .input("usuario_registro", sql.NVarChar, usuario_registro)
       .query(queriesEquipo.setMantenimiento);
@@ -264,6 +263,48 @@ const getMantenimientosPorEquipo = async (req, res) => {
   }
 };
 
+const eliminarEquipo = async (req, res) => {
+  const { id } = req.params;
+
+  if (!id || isNaN(parseInt(id))) {
+    return res.status(400).json({
+      message: "ID de equipo inválido",
+    });
+  }
+
+  try {
+    const pool = await getConnection();
+    // 1. Verificar si tiene mantenimientos
+    const result = await pool
+      .request()
+      .input("equipoId", sql.Int, parseInt(id))
+      .query(
+        "SELECT COUNT(*) as count FROM Mantenimientos WHERE equipoId = @equipoId"
+      );
+
+    const tieneMantenimientos = result.recordset[0].count > 0;
+    if (tieneMantenimientos) {
+      return res.status(400).json({
+        message:
+          "No se puede eliminar el equipo porque tiene mantenimientos asociados",
+      });
+    }
+    // 2. Si no tiene mantenimientos, eliminar
+    await pool
+      .request()
+      .input("id", sql.Int, parseInt(id))
+      .query("DELETE FROM Equipos WHERE id = @id");
+
+    res.status(200).json({ message: "Equipo eliminado exitosamente" });
+  } catch (err) {
+    console.error("Error al eliminar equipo:", err.message);
+    res.status(500).json({
+      message: "Error al eliminar equipo",
+      error: err.message,
+    });
+  }
+};
+
 module.exports = {
   getEquipos,
   crearEquipo,
@@ -271,4 +312,5 @@ module.exports = {
   darDeBajaEquipo,
   agregarMantenimiento,
   getMantenimientosPorEquipo,
+  eliminarEquipo,
 };

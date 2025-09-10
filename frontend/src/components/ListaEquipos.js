@@ -1,6 +1,6 @@
 import "../assets/ListaEquipos.css";
 import React, { useEffect, useState, useCallback } from "react";
-import { getEquipos } from "../services/api";
+import { getEquipos, eliminarEquipo } from "../services/api";
 
 const ListaEquipos = ({ onSelect }) => {
   const [equipos, setEquipos] = useState([]);
@@ -99,6 +99,43 @@ const ListaEquipos = ({ onSelect }) => {
                         onClick={() => onSelect(eq)}
                       >
                         Ver
+                      </button>
+                      {/* Botón Eliminar */}
+                      <button
+                        className="buttomListaEquipo"
+                        style={{
+                          backgroundColor: "#e74c3c",
+                          color: "white",
+                          border: "none",
+                          padding: "6px 10px",
+                          borderRadius: "4px",
+                          cursor: "pointer",
+                        }}
+                        onClick={async (e) => {
+                          e.stopPropagation(); // Evita conflicto si hay otros eventos
+                          const confirmado = window.confirm(
+                            `¿Está seguro de eliminar el equipo ID: ${eq.id}?`
+                          );
+                          if (!confirmado) return;
+
+                          try {
+                            await eliminarEquipo(eq.id);
+                            alert("✅ Equipo eliminado exitosamente");
+                            // Refrescar lista
+                            const res = await getEquipos();
+                            setEquipos(res.data);
+                          } catch (err) {
+                            const mensaje =
+                              err.response?.data?.message ||
+                              "No se puede eliminar el equipo (tiene mantenimientos o está dado de baja)";
+                            alert(mensaje);
+                            // No hagas console.error aquí para no mostrar error rojo
+                          }
+                        }}
+                        disabled={eq.estado === null}
+                        title="Eliminar equipo"
+                      >
+                        🗑️
                       </button>
                     </td>
                   </tr>
