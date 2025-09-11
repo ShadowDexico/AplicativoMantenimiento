@@ -72,6 +72,7 @@ const crearEquipo = async (req, res) => {
 // Actualizar un equipo existente
 const actualizarEquipo = async (req, res) => {
   const { id } = req.params;
+
   const {
     tipo_equipo,
     marca,
@@ -88,16 +89,13 @@ const actualizarEquipo = async (req, res) => {
     fecha_instalacion,
     ipActiva,
     ip,
-    tipo_mantenimiento,
-    fecha_mantenimiento,
-    hora_inicio,
-    hora_fin,
     estado,
     usuarioBaja,
     disco,
   } = req.body;
 
   try {
+    
     const toDay = new Date();
     const pool = await getConnection();
     const result = await pool
@@ -112,22 +110,17 @@ const actualizarEquipo = async (req, res) => {
       .input("ubicacion", sql.NVarChar, ubicacion)
       .input("sistema_operativo", sql.NVarChar, sistema_operativo)
       .input("procesador", sql.NVarChar, procesador)
-      .input("ram", sql.Int, ram)
+      .input("ram", sql.NVarChar, ram)
       .input("disco", sql.NVarChar, disco)
       .input("fecha_compra", sql.DateTime, fecha_compra)
       .input("nombre_dispositivo", sql.NVarChar, nombre_dispositivo)
       .input("fecha_instalacion", sql.DateTime, fecha_instalacion)
-      .input("ipActiva", sql.NVarChar, ipActiva)
+      .input("ipActiva", sql.Bit, ipActiva)
       .input("ip", sql.NVarChar, ip)
-      .input("tipo_mantenimiento", sql.NVarChar, tipo_mantenimiento)
-      .input("fecha_mantenimiento", sql.DateTime, fecha_mantenimiento)
-      .input("hora_inicio", sql.Time, hora_inicio)
-      .input("hora_fin", sql.Time, hora_fin)
       .input("estado", sql.Bit, estado)
       .input("usuarioBaja", sql.NVarChar, usuarioBaja || null)
       .input("fechaBaja", sql.DateTime, toDay || null)
       .query(queriesEquipo.uptEquipos);
-
     res.status(200).json({ message: "Equipo actualizado exitosamente" });
   } catch (err) {
     console.error("Error al actualizar equipo:", err.message);
@@ -305,6 +298,95 @@ const eliminarEquipo = async (req, res) => {
   }
 };
 
+const actualizarMantenimiento = async (req, res) => {
+  const { id } = req.params;
+  const {
+    tipo_mantenimiento,
+    fecha_mantenimiento,
+    hora_inicio,
+    hora_fin,
+    observaciones,
+    usuario_registro,
+  } = req.body;
+
+  if (
+    !tipo_mantenimiento ||
+    !fecha_mantenimiento ||
+    !hora_inicio ||
+    !hora_fin ||
+    !usuario_registro
+  ) {
+    return res.status(400).json({
+      message: "Todos los campos son obligatorios",
+    });
+  }
+
+  try {
+    const pool = await getConnection();
+    const formatearHora = (hora) => {
+      if (!hora) return null;
+      return hora.length === 5 ? `${hora}:00` : hora;
+    };
+
+    const horaInicioFormateada = formatearHora(hora_inicio);
+    const horaFinFormateada = formatearHora(hora_fin);
+
+    const result = await pool
+      .request()
+      .input("id", sql.Int, parseInt(id))
+      .input("tipo_mantenimiento", sql.NVarChar, tipo_mantenimiento)
+      .input("fecha_mantenimiento", sql.Date, fecha_mantenimiento)
+      .input("hora_inicio", horaInicioFormateada)
+      .input("hora_fin", horaFinFormateada)
+      .input("observaciones", sql.NVarChar, observaciones || null)
+      .input("usuario_registro", sql.NVarChar, usuario_registro)
+      .query(queriesEquipo.uptMantenimiento);
+
+    if (result.rowsAffected[0] === 0) {
+      return res.status(404).json({ message: "Mantenimiento no encontrado" });
+    }
+    res.status(200).json({ message: "Mantenimiento actualizado" });
+  } catch (err) {
+    console.error("Error al actualizar mantenimiento:", err.message);
+    res.status(500).json({
+      message: "Error interno",
+      error: err.message,
+    });
+  }
+};
+
+const eliminarMantenimiento = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const pool = await getConnection();
+
+    // Verificar que exista
+    const check = await pool
+      .request()
+      .input("id", sql.Int, parseInt(id))
+      .query("SELECT id FROM Mantenimientos WHERE id = @id");
+
+    if (check.recordset.length === 0) {
+      return res.status(404).json({ message: "Mantenimiento no encontrado" });
+    }
+
+    // Eliminar
+    await pool
+      .request()
+      .input("id", sql.Int, parseInt(id))
+      .query("DELETE FROM Mantenimientos WHERE id = @id");
+
+    res.status(200).json({ message: "Mantenimiento eliminado exitosamente" });
+  } catch (err) {
+    console.error("Error al eliminar mantenimiento:", err.message);
+    res.status(500).json({
+      message: "Error al eliminar mantenimiento",
+      error: err.message,
+    });
+  }
+};
+
 module.exports = {
   getEquipos,
   crearEquipo,
@@ -313,4 +395,6 @@ module.exports = {
   agregarMantenimiento,
   getMantenimientosPorEquipo,
   eliminarEquipo,
+  actualizarMantenimiento,
+  eliminarMantenimiento,
 };

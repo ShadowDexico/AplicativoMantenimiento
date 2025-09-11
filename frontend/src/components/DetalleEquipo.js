@@ -3,6 +3,8 @@ import React, { useState, useEffect } from "react";
 import ModalMantenimiento from "./ModalMantenimiento";
 import { getMantenimientosPorEquipo } from "../services/api";
 import { darDeBajaEquipo } from "../services/api";
+import ModalEditarMantenimiento from "./ModalEditarMantenimiento";
+import { actualizarEquipo } from "../services/api";
 
 const DetalleEquipo = ({ equipo, onVolver, onActualizar }) => {
   const [editando, setEditando] = useState(false);
@@ -10,9 +12,19 @@ const DetalleEquipo = ({ equipo, onVolver, onActualizar }) => {
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [mantenimientos, setMantenimientos] = useState([]);
+  const [mantenimientoEdit, setMantenimientoEdit] = useState(null);
+
+  useEffect(() => {
+    setEquipoEdit({
+      ...equipo,
+      ipActiva: equipo.ipActiva === 1 || equipo.ipActiva === true,
+      estado: equipo.estado === 1 || equipo.estado === true,
+    });
+  }, [equipo]);
 
   useEffect(() => {
     const cargar = async () => {
+      if (!equipo.id) return;
       setLoading(true);
       try {
         const res = await getMantenimientosPorEquipo(equipo.id);
@@ -23,35 +35,58 @@ const DetalleEquipo = ({ equipo, onVolver, onActualizar }) => {
         setLoading(false);
       }
     };
-
-    if (equipo.id) {
-      cargar();
-    }
+    cargar();
   }, [equipo.id]);
 
   const handleActualizar = () => {
-    setEquipoEdit({
-      ...equipo,
-      ipActiva: equipo.ipActiva === 1 || equipo.ipActiva === true,
-      estado: equipo.estado === 1 || equipo.estado === true,
-    });
     setEditando(true);
   };
 
   const handleGuardar = async () => {
+    const data = {
+      ...equipoEdit,
+      ipActiva: equipoEdit.ipActiva ? 1 : 0,
+      estado: equipoEdit.estado ? 1 : 0,
+      fecha_compra: equipoEdit.fecha_compra?.split("T")[0] || null,
+      fecha_instalacion: equipoEdit.fecha_instalacion?.split("T")[0] || null,
+      marca: equipoEdit.marca || "",
+      modelo: equipoEdit.modelo || "",
+      tipo_equipo: equipoEdit.tipo_equipo || "",
+      serie: equipoEdit.serie || "",
+      disco: equipoEdit.disco || "",
+      ram: equipoEdit.ram || "",
+      procesador: equipoEdit.procesador || "",
+      sistema_operativo: equipoEdit.sistema_operativo || "",
+      activo_institucional: equipoEdit.activo_institucional || "",
+      usuario_asignado: equipoEdit.usuario_asignado || "",
+      ubicacion: equipoEdit.ubicacion || "",
+      nombre_dispositivo: equipoEdit.nombre_dispositivo || "",
+      ip: equipoEdit.ipActiva ? equipoEdit.ip || "" : null,
+    };
+
+    console.log("📤 Enviando al backend:", data);
+
     try {
-      await onActualizar(equipo.id, equipoEdit);
+      // Llama al API para guardar
+      await actualizarEquipo(equipo.id, data);
+
+      // Notifica al padre (App.js) para actualizar listas
+      if (typeof onActualizar === "function") {
+        onActualizar(equipo.id, data);
+      }
+
       setEditando(false);
-      alert("Equipo actualizado");
+      alert("✅ Equipo actualizado correctamente");
     } catch (err) {
-      alert("Error al actualizar");
+      console.error("Error al guardar:", err);
+      alert("No se pudo actualizar el equipo. Revisa conexión o datos.");
     }
   };
 
   const handleBaja = () => {
     const usuarioBaja = prompt("¿Quién da de baja el equipo?");
     if (usuarioBaja) {
-      darDeBajaEquipo(equipo.id, { usuarioBaja }) // ← clave: nombre correcto
+      darDeBajaEquipo(equipo.id, { usuarioBaja })
         .then(() => {
           alert("Equipo dado de baja");
           onVolver();
@@ -425,6 +460,7 @@ const DetalleEquipo = ({ equipo, onVolver, onActualizar }) => {
                   <th>Observaciones</th>
                   <th>Registrado por</th>
                   <th>Fecha registro</th>
+                  <th>Acciones</th>
                 </tr>
               </thead>
               <tbody>
@@ -441,12 +477,36 @@ const DetalleEquipo = ({ equipo, onVolver, onActualizar }) => {
                     <td>{m.observaciones || "-"}</td>
                     <td>{m.usuario_registro}</td>
                     <td>{new Date(m.fecha_registro).toLocaleString()}</td>
+                    <td>
+                      <button
+                        className="buttomListaEquipo"
+                        onClick={() => setMantenimientoEdit(m)}
+                      >
+                        📝
+                      </button>
+                    </td>
                   </tr>
                 ))}
               </tbody>
             </table>
           )}
         </div>
+        {/* Modal de edición */}
+        {mantenimientoEdit && (
+          <ModalEditarMantenimiento
+            mantenimiento={mantenimientoEdit}
+            onClose={() => setMantenimientoEdit(null)}
+            onGuardar={async () => {
+              try {
+                const res = await getMantenimientosPorEquipo(equipo.id);
+                setMantenimientos(res.data);
+                setMantenimientoEdit(null);
+              } catch (err) {
+                alert("Error al refrescar");
+              }
+            }}
+          />
+        )}
       </div>
     </div>
   );

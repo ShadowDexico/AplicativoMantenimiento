@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import FormularioEquipo from './components/FormularioEquipo';
-import ListaEquipos from './components/ListaEquipos';
-import DetalleEquipo from './components/DetalleEquipo';
+import React, { useState } from "react";
+import FormularioEquipo from "./components/FormularioEquipo";
+import ListaEquipos from "./components/ListaEquipos";
+import DetalleEquipo from "./components/DetalleEquipo";
 
 function App() {
   const [equipos, setEquipos] = useState([]);
@@ -12,8 +12,8 @@ function App() {
   };
 
   const handleActualizar = (id, data) => {
-    setEquipos(equipos.map(eq => eq.id === id ? { ...eq, ...data } : eq));
-    setDetalle({ ...detalle, ...data });
+    setEquipos(equipos.map((eq) => (eq.id === id ? { ...eq, ...data } : eq)));
+    setDetalle((prev) => (prev?.id === id ? { ...prev, ...data } : prev));
   };
 
   const handleSelect = (eq) => {
@@ -25,7 +25,7 @@ function App() {
   };
 
   return (
-    <div style={{ padding: '20px', fontFamily: 'Arial' }}>
+    <div style={{ padding: "20px", fontFamily: "Arial" }}>
       <h1>Inventario de Equipos</h1>
 
       {!detalle ? (

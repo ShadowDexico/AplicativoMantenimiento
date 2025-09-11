@@ -8,6 +8,8 @@ const {
   agregarMantenimiento,
   getMantenimientosPorEquipo,
   eliminarEquipo,
+  actualizarMantenimiento,
+  eliminarMantenimiento,
 } = require("../controllers/equiposController");
 
 router.get("/", getEquipos);
@@ -17,5 +19,7 @@ router.patch("/:id/baja", darDeBajaEquipo);
 router.post("/:id/mantenimientos", agregarMantenimiento);
 router.get("/:id/mantenimientos", getMantenimientosPorEquipo);
 router.delete("/:id", eliminarEquipo);
+router.put("/mantenimientos/:id", actualizarMantenimiento);
+router.delete("/mantenimientos/:id", eliminarMantenimiento);
 
 module.exports = router;

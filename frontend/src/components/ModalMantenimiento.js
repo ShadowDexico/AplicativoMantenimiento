@@ -16,8 +16,11 @@ const ModalMantenimiento = ({ equipoId, onClose, onGuardar }) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setMantenimiento({ ...mantenimiento, [name]: value });
-    // Limpiar error al escribir
+    if (name === "fecha_mantenimiento") {
+      setMantenimiento({ ...mantenimiento, [name]: value });
+    } else {
+      setMantenimiento({ ...mantenimiento, [name]: value });
+    }
     if (errores[name]) {
       setErrores({ ...errores, [name]: "" });
     }
@@ -60,9 +63,12 @@ const ModalMantenimiento = ({ equipoId, onClose, onGuardar }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validar()) return;
-    console.log("Enviando mantenimiento:", mantenimiento);
+    const datosEnviar = {
+      ...mantenimiento,
+      fecha_mantenimiento: mantenimiento.fecha_mantenimiento,
+    };
     try {
-      await agregarMantenimiento(equipoId, mantenimiento);
+      await agregarMantenimiento(equipoId, datosEnviar);
       onGuardar(); // Notificar al padre
       onClose(); // Cerrar modal
     } catch (err) {
