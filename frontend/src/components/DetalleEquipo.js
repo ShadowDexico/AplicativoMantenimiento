@@ -13,6 +13,8 @@ const DetalleEquipo = ({ equipo, onVolver, onActualizar }) => {
   const [loading, setLoading] = useState(false);
   const [mantenimientos, setMantenimientos] = useState([]);
   const [mantenimientoEdit, setMantenimientoEdit] = useState(null);
+  const [firmaSeleccionada, setFirmaSeleccionada] = useState(null);
+  const [mostrarModalFirma, setMostrarModalFirma] = useState(false);
 
   useEffect(() => {
     setEquipoEdit({
@@ -478,12 +480,37 @@ const DetalleEquipo = ({ equipo, onVolver, onActualizar }) => {
                     <td>{m.usuario_registro}</td>
                     <td>{new Date(m.fecha_registro).toLocaleString()}</td>
                     <td>
+                      {/* Botón Editar */}
                       <button
                         className="buttomListaEquipo"
                         onClick={() => setMantenimientoEdit(m)}
+                        title="Editar mantenimiento"
+                        style={{ marginRight: "8px" }}
                       >
                         📝
                       </button>
+
+                      {/* Botón Ver Firma */}
+                      {m.firma ? (
+                        <button
+                          className="buttomListaEquipo"
+                          onClick={() => {
+                            const backendHost = "10.20.1.142";
+                            console.log(m.firma.split('firma/')[1]);
+                            setFirmaSeleccionada(
+                              `http://${backendHost}:3150/${m.firma.split('firma/')[1]}`
+                            );
+                            setMostrarModalFirma(true);
+                          }}
+                          title="Ver firma"
+                        >
+                          👁️
+                        </button>
+                      ) : (
+                        <span style={{ color: "#999", fontSize: "0.9rem" }}>
+                          Sin firma
+                        </span>
+                      )}
                     </td>
                   </tr>
                 ))}
@@ -508,6 +535,81 @@ const DetalleEquipo = ({ equipo, onVolver, onActualizar }) => {
           />
         )}
       </div>
+      {mostrarModalFirma && firmaSeleccionada && (
+        <div
+          className="modal-backdrop"
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            backgroundColor: "rgba(0, 0, 0, 0.7)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 10000,
+          }}
+          onClick={() => setMostrarModalFirma(false)}
+        >
+          <div
+            style={{
+              background: "white",
+              borderRadius: "12px",
+              padding: "20px",
+              maxWidth: "90vw",
+              maxHeight: "90vh",
+              overflow: "auto",
+              position: "relative",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h4 style={{ margin: "0 0 16px 0", textAlign: "center" }}>
+              Firma del responsable
+            </h4>
+            <img
+              src={firmaSeleccionada}
+              alt="Firma del mantenimiento"
+              style={{
+                maxWidth: "100%",
+                maxHeight: "70vh",
+                objectFit: "contain",
+                border: "1px solid #ddd",
+                borderRadius: "8px",
+              }}
+              onError={(e) => {
+                console.error("❌ No se pudo cargar la firma:", e.target.src);
+                e.target.style.backgroundColor = "#f9f9f9";
+                e.target.style.width = "300px";
+                e.target.style.height = "150px";
+                e.target.style.display = "flex";
+                e.target.style.alignItems = "center";
+                e.target.style.justifyContent = "center";
+                e.target.style.color = "#666";
+                e.target.src = ""; // Evita imagen rota
+                e.target.alt = "No se pudo cargar la firma";
+              }}
+            />
+            <button
+              onClick={() => setMostrarModalFirma(false)}
+              style={{
+                position: "absolute",
+                top: "10px",
+                right: "10px",
+                background: "#ccc",
+                border: "none",
+                borderRadius: "50%",
+                width: "30px",
+                height: "30px",
+                cursor: "pointer",
+                fontSize: "18px",
+              }}
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

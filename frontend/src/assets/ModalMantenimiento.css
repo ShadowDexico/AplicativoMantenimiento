@@ -158,6 +158,143 @@
     background-color: #219a52;
 }
 
+/* Fondo modal */
+.modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+}
+
+/* Contenido modal */
+.modal-content {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+}
+
+/* Botón firma */
+.btn-firma {
+    width: 100%;
+    height: 60px;
+    border: 2px dashed #3498db;
+    border-radius: 8px;
+    background: #f8f9fa;
+    color: #3498db;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.firma-completada {
+    font-size: 0.85rem;
+    color: #27ae60;
+    margin-top: 6px;
+    text-align: center;
+}
+
+.body-no-scroll {
+    overflow: hidden !important;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+}
+
+/* Mejoras para el canvas en dispositivos táctiles */
+.canvas-touch {
+    touch-action: none;
+}
+
+
+/* Pantalla completa para firma */
+.firma-fullscreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: #fff;
+    z-index: 10000;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 16px;
+    box-sizing: border-box;
+}
+
+
+.firma-header {
+    text-align: center;
+}
+
+.firma-header h3 {
+    margin: 0;
+    color: #333;
+}
+
+.firma-header p {
+    font-size: 0.9rem;
+    color: #666;
+    margin: 4px 0 0 0;
+}
+
+.firma-canvas-container {
+    flex: 1;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 10px 0;
+}
+
+.firma-canvas {
+    background: white;
+    display: block;
+    width: 100%;
+    height: 100%;
+    cursor: crosshair;
+}
+
+/* Botones firma */
+.firma-actions {
+    display: flex;
+    gap: 12px;
+}
+
+.btn-limpiar,
+.btn-listo {
+    flex: 1;
+    padding: 14px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.btn-limpiar {
+    background: #95a5a6;
+    color: white;
+}
+
+.btn-listo {
+    background: #27ae60;
+    color: white;
+}
+
 /* Animación */
 @keyframes fadeIn {
     from {
@@ -169,11 +306,49 @@
     }
 }
 
-/* Responsive */
-@media (max-width: 768px) {
+/* ==================== MEDIA QUERIES RESPONSIVAS ==================== */
+
+/* Tablets (pantallas medianas, 768px a 1024px) */
+@media (max-width: 1024px) {
+    .modal-content {
+        width: 85%;
+        padding: 20px;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+
+    .checkbox-group {
+        gap: 10px;
+    }
+
+    .checkbox-label {
+        font-size: 13px;
+    }
+}
+
+/* Móviles grandes y tablets pequeñas (576px a 767px) */
+@media (max-width: 767px) {
+    .modal-content {
+        width: 90%;
+        padding: 16px;
+        margin: 20px;
+    }
+
+    .modal-content h3 {
+        font-size: 1.3rem;
+    }
+
     .form-row {
         grid-template-columns: 1fr;
-        gap: 12px;
+        gap: 10px;
+    }
+
+    .checkbox-group {
+        flex-direction: column;
+        gap: 8px;
     }
 
     .modal-actions {
@@ -183,5 +358,109 @@
     .btn-primary,
     .btn-secondary {
         width: 100%;
+        margin-bottom: 8px;
+    }
+
+    /* Ajustes para el canvas de firma en móviles */
+    .firma-fullscreen {
+        padding: 12px;
+    }
+
+    .firma-header h3 {
+        font-size: 1.2rem;
+    }
+
+    .firma-header p {
+        font-size: 0.8rem;
+    }
+
+    .firma-actions {
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .btn-limpiar,
+    .btn-listo {
+        padding: 16px;
+        font-size: 16px;
+        min-height: 44px;
+        width: 100%;
+        /* Tamaño mínimo para toques */
+    }
+}
+
+/* Móviles pequeños (hasta 575px) */
+@media (max-width: 575px) {
+    .modal-content {
+        width: 95%;
+        padding: 12px;
+        margin: 10px;
+    }
+
+    .modal-content h3 {
+        font-size: 1.2rem;
+        padding-bottom: 8px;
+        margin-bottom: 15px;
+    }
+
+    .form-group {
+        margin-bottom: 12px;
+    }
+
+    .checkbox-group {
+        padding: 8px;
+    }
+
+    .checkbox-label {
+        font-size: 12px;
+    }
+
+    .modal-content input,
+    .modal-content textarea {
+        padding: 8px;
+        font-size: 13px;
+    }
+
+    .btn-firma {
+        height: 50px;
+        font-size: 0.9rem;
+    }
+
+    /* Mejoras de usabilidad para inputs en móviles */
+    input[type="date"],
+    input[type="time"] {
+        min-height: 44px;
+        /* Tamaño mínimo recomendado para touch */
+    }
+}
+
+/* Pantallas muy grandes (más de 1200px) */
+@media (min-width: 1200px) {
+    .modal-content {
+        max-width: 700px;
+    }
+}
+
+/* Ajustes de orientación para móviles */
+@media (max-height: 600px) and (orientation: landscape) {
+    .modal-content {
+        max-height: 80vh;
+        overflow-y: auto;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+/* Prevención de zoom en iOS al enfocar inputs */
+@media screen and (max-width: 767px) {
+
+    input[type="text"],
+    input[type="date"],
+    input[type="time"],
+    textarea {
+        font-size: 16px;
+        /* Previene zoom en iOS */
     }
 }

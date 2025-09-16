@@ -63,11 +63,189 @@
     padding: 5px;
     border-bottom: 2px solid #cddce9;
     text-align: left;
-    
+
 }
 
 .tabla-mantenimientos td {
     padding: 10px;
     color: #555;
     border-bottom: 1px solid #eee;
+}
+
+/* ==================== MEDIA QUERIES RESPONSIVAS ==================== */
+
+/* Tablets (pantallas medianas, 768px a 1024px) */
+@media (max-width: 1024px) {
+    .detalle-container {
+        padding: 20px;
+        margin: 15px;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 10px !important;
+    }
+
+    .tabla-mantenimientos {
+        font-size: 0.9rem;
+    }
+
+    .tabla-mantenimientos th,
+    .tabla-mantenimientos td {
+        padding: 8px;
+    }
+}
+
+/* Móviles grandes y tablets pequeñas (576px a 767px) */
+@media (max-width: 767px) {
+    .detalle-container {
+        padding: 15px;
+        margin: 10px;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr !important;
+        gap: 8px !important;
+    }
+
+    .radio-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .buttomDetalleEquipo {
+        width: 100%;
+        margin-bottom: 8px;
+    }
+
+    /* Mejoras para la tabla en dispositivos móviles */
+    .tabla-mantenimientos {
+        display: block;
+        overflow-x: auto;
+        font-size: 0.85rem;
+    }
+
+    .tabla-mantenimientos th,
+    .tabla-mantenimientos td {
+        padding: 6px 4px;
+        white-space: nowrap;
+    }
+
+    .tabla-mantenimientos th:nth-child(4),
+    /* Observaciones */
+    .tabla-mantenimientos td:nth-child(4) {
+        max-width: 150px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+}
+
+/* Móviles pequeños (hasta 575px) */
+@media (max-width: 575px) {
+    .detalle-container {
+        padding: 12px;
+        margin: 8px;
+    }
+
+    .detalle-container h3 {
+        font-size: 1.3rem;
+    }
+
+    .detalle-container p {
+        font-size: 14px;
+    }
+
+    .form-grid {
+        gap: 6px !important;
+    }
+
+    input[type="text"],
+    input[type="date"] {
+        padding: 8px;
+        font-size: 14px;
+        min-height: 44px;
+        /* Tamaño mínimo para touch */
+    }
+
+    .historial-mantenimientos {
+        padding: 6px;
+        margin: 4px;
+    }
+
+    .titulo-historial {
+        font-size: 1rem;
+    }
+
+    .tabla-mantenimientos {
+        font-size: 0.8rem;
+    }
+
+    .tabla-mantenimientos th,
+    .tabla-mantenimientos td {
+        padding: 4px 3px;
+    }
+
+    /* Ocultar columnas menos importantes en móviles muy pequeños */
+    .tabla-mantenimientos th:nth-child(6),
+    /* Fecha registro */
+    .tabla-mantenimientos td:nth-child(6) {
+        display: none;
+    }
+}
+
+/* Pantallas muy grandes (más de 1200px) */
+@media (min-width: 1200px) {
+    .detalle-container {
+        max-width: 900px;
+    }
+}
+
+/* Ajustes para orientación horizontal en móviles */
+@media (max-height: 600px) and (orientation: landscape) {
+    .detalle-container {
+        max-height: 80vh;
+        overflow-y: auto;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr 1fr !important;
+    }
+}
+
+/* Prevención de zoom en iOS al enfocar inputs */
+@media screen and (max-width: 767px) {
+
+    input[type="text"],
+    input[type="date"],
+    .detalle-container p {
+        font-size: 16px;
+        /* Previene zoom en iOS */
+    }
+}
+
+/* Mejoras de visualización para botones en modo edición */
+@media (max-width: 767px) {
+    .detalle-container>div>div:last-child {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .detalle-container>div>div:last-child button {
+        margin-left: 0 !important;
+        margin-top: 8px;
+    }
+}
+
+/* Estilos para el estado responsivo */
+.detalle-container p strong {
+    display: inline-block;
+    min-width: 120px;
+}
+
+@media (max-width: 575px) {
+    .detalle-container p strong {
+        min-width: 100px;
+    }
 }

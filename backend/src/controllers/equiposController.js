@@ -1,6 +1,7 @@
 const sql = require("mssql"); // Necesario para acceder a sql.NVarChar, sql.Int, etc.
 const { getConnection } = require("../config/data"); // Importar la función getConnection
 const { queriesEquipo } = require("../query"); // Importar las consultas
+const fs = require("fs");
 
 // Obtener todos los equipos
 const getEquipos = async (req, res) => {
@@ -15,6 +16,16 @@ const getEquipos = async (req, res) => {
       .json({ message: "Error al obtener los equipos", error: err.message });
   }
 };
+
+function SaveFirma(firma) {
+  if (firma) {
+    const newPath = `./firma/${Date.now() + firma.filename}.jpg`;
+    fs.renameSync(firma.path, newPath);
+    return newPath;
+  } else {
+    return 'null';
+  }
+}
 
 // Crear un nuevo equipo
 const crearEquipo = async (req, res) => {
@@ -95,7 +106,6 @@ const actualizarEquipo = async (req, res) => {
   } = req.body;
 
   try {
-    
     const toDay = new Date();
     const pool = await getConnection();
     const result = await pool
@@ -161,10 +171,9 @@ const darDeBajaEquipo = async (req, res) => {
   }
 };
 
-// Agregar mantenimiento a un equipo
 const agregarMantenimiento = async (req, res) => {
-  const { id: equipoId } = req.params;
   const {
+    equipoId,
     tipo_mantenimiento,
     fecha_mantenimiento,
     hora_inicio,
@@ -172,7 +181,7 @@ const agregarMantenimiento = async (req, res) => {
     observaciones,
     usuario_registro,
   } = req.body;
-
+  const firmaPath = req.file;
   if (
     !tipo_mantenimiento ||
     !fecha_mantenimiento ||
@@ -215,13 +224,14 @@ const agregarMantenimiento = async (req, res) => {
 
     await pool
       .request()
-      .input("equipoId", sql.Int, parseInt(equipoId))
+      .input("equipoId", sql.Int, Number(equipoId))
       .input("tipo_mantenimiento", sql.NVarChar, tipo_mantenimiento)
       .input("fecha_mantenimiento", sql.Date, fecha_mantenimiento)
       .input("hora_inicio", horaInicioFormateada)
       .input("hora_fin", horaFinFormateada)
       .input("observaciones", sql.NVarChar, observaciones || null)
       .input("usuario_registro", sql.NVarChar, usuario_registro)
+      .input("firma", sql.NVarChar, SaveFirma(firmaPath))
       .query(queriesEquipo.setMantenimiento);
 
     res.status(201).json({
@@ -238,7 +248,6 @@ const agregarMantenimiento = async (req, res) => {
 
 const getMantenimientosPorEquipo = async (req, res) => {
   const { id } = req.params;
-
   try {
     const pool = await getConnection();
     const result = await pool
