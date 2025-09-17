@@ -20,6 +20,30 @@ const ModalMantenimiento = ({ equipoId, onClose, onGuardar }) => {
   const canvasRef = useRef(null);
   const canvasStorageRef = useRef(null);
 
+  const abrirPantallaCompleta = (element) => {
+    if (element.requestFullscreen) {
+      element.requestFullscreen();
+    } else if (element.webkitRequestFullscreen) {
+      // Safari
+      element.webkitRequestFullscreen();
+    } else if (element.msRequestFullscreen) {
+      // IE/Edge
+      element.msRequestFullscreen();
+    }
+  };
+
+  const cerrarPantallaCompleta = () => {
+    if (document.fullscreenElement) {
+      if (document.exitFullscreen) {
+        document.exitFullscreen().catch(() => {});
+      } else if (document.webkitExitFullscreen) {
+        document.webkitExitFullscreen();
+      } else if (document.msExitFullscreen) {
+        document.msExitFullscreen();
+      }
+    }
+  };
+
   useEffect(() => {
     const canvas = canvasStorageRef.current;
     if (!canvas) return;
@@ -30,29 +54,71 @@ const ModalMantenimiento = ({ equipoId, onClose, onGuardar }) => {
   }, []);
 
   useEffect(() => {
-    if (mostrarFirmaFullscreen && canvasRef.current) {
-      const canvas = canvasRef.current;
-      const parent = canvas.parentElement;
+    if (!mostrarFirmaFullscreen || !canvasRef.current) return;
 
-      const resizeCanvas = () => {
-        const w = parent.offsetWidth;
-        const h = parent.offsetHeight;
-        canvas.width = w;
-        canvas.height = h;
+    const canvas = canvasRef.current;
+    const container = canvas.parentElement;
+    // const isMobile = /Mobi|Android/i.test(navigator.userAgent);
 
-        const ctx = canvas.getContext("2d", { willReadFrequently: true });
-        ctx.lineWidth = 2;
-        ctx.lineCap = "round";
-        ctx.strokeStyle = "#000";
-        ctx.fillStyle = "#fff";
-        ctx.fillRect(0, 0, w, h);
-      };
+    // función de resize y setup del contexto que también calcula la inversión
+    const resizeCanvas = () => {
+      const rect = container.getBoundingClientRect();
+      if (rect.width === 0 || rect.height === 0) return;
 
-      resizeCanvas();
-      window.addEventListener("resize", resizeCanvas);
+      const ratio = window.devicePixelRatio || 1;
 
-      return () => window.removeEventListener("resize", resizeCanvas);
-    }
+      // tamaño real del bitmap del canvas (device pixels)
+      canvas.width = Math.round(rect.width * ratio);
+      canvas.height = Math.round(rect.height * ratio);
+
+      const ctx = canvas.getContext("2d", { willReadFrequently: true });
+
+      // Obtenemos la transform CSS aplicada al canvas (si existe)
+      const cs = window.getComputedStyle(canvas);
+      const cssTransform =
+        cs.transform && cs.transform !== "none"
+          ? new DOMMatrix(cs.transform)
+          : new DOMMatrix();
+
+      // invertimos la transform (mapeará coords de pantalla -> coords locales)
+      let inv;
+      try {
+        inv = cssTransform.inverse();
+      } catch (err) {
+        inv = new DOMMatrix(); // fallback identidad
+      }
+
+      // final: aplicar scale por devicePixelRatio y luego la inverse transform
+      const final = new DOMMatrix().scale(ratio, ratio).multiply(inv);
+
+      // Rellenar fondo en espacio de píxeles (reset transform para no pintar transformado)
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.fillStyle = "#fff";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Aplicar transform final para que las coordenadas que usemos (CSS pixels
+      // relativos al bounding rect) se mapeen correctamente a píxeles del canvas
+      ctx.setTransform(final.a, final.b, final.c, final.d, final.e, final.f);
+
+      // estilos de dibujo (en unidades CSS)
+      ctx.lineWidth = 2;
+      ctx.lineCap = "round";
+      ctx.strokeStyle = "#000";
+    };
+
+    // // si es móvil, ponemos la clase que rotará visualmente el canvas
+    // if (isMobile) canvas.classList.add("rotated");
+    // else canvas.classList.remove("rotated");
+
+    // inicial
+    resizeCanvas();
+    // redimensionar al cambiar tamaño / rotar
+    window.addEventListener("resize", resizeCanvas);
+
+    return () => {
+      window.removeEventListener("resize", resizeCanvas);
+      // canvas.classList.remove("rotated");
+    };
   }, [mostrarFirmaFullscreen]);
 
   const getCoordinates = (e) => {
@@ -60,22 +126,18 @@ const ModalMantenimiento = ({ equipoId, onClose, onGuardar }) => {
     const rect = canvas.getBoundingClientRect();
 
     let clientX, clientY;
-
-    if (e.type.includes("touch")) {
-      const touch = e.touches[0] || e.changedTouches[0];
-      clientX = touch.clientX;
-      clientY = touch.clientY;
+    if (e.type && e.type.includes("touch")) {
+      const t = e.changedTouches[0]; // ✅ más estable que touches[0]
+      clientX = t.clientX;
+      clientY = t.clientY;
     } else {
       clientX = e.clientX;
       clientY = e.clientY;
     }
 
-    const scaleX = canvas.width / rect.width;
-    const scaleY = canvas.height / rect.height;
-
     return {
-      x: (clientX - rect.left) * scaleX,
-      y: (clientY - rect.top) * scaleY,
+      x: clientX - rect.left,
+      y: clientY - rect.top,
     };
   };
 
@@ -95,14 +157,11 @@ const ModalMantenimiento = ({ equipoId, onClose, onGuardar }) => {
 
   const dibujar = (e) => {
     if (!isDrawing) return;
-
-    // Prevenir scroll en móvil
-    if (e.type.includes("touch")) {
-      e.preventDefault(); // ← Clave para evitar scroll
-    }
+    if (e.type.includes("touch")) e.preventDefault();
 
     const { x, y } = getCoordinates(e);
     const ctx = canvasRef.current.getContext("2d");
+
     ctx.lineTo(x, y);
     ctx.stroke();
   };
@@ -139,9 +198,35 @@ const ModalMantenimiento = ({ equipoId, onClose, onGuardar }) => {
 
   const limpiarFirma = () => {
     const canvas = canvasRef.current;
+    if (!canvas) return;
     const ctx = canvas.getContext("2d");
+
+    // Limpiar bitmap directamente
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.fillStyle = "#fff";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Reaplicar la transform final (igual que resizeCanvas hace)
+    const cs = window.getComputedStyle(canvas);
+    const cssTransform =
+      cs.transform && cs.transform !== "none"
+        ? new DOMMatrix(cs.transform)
+        : new DOMMatrix();
+
+    let inv;
+    try {
+      inv = cssTransform.inverse();
+    } catch (err) {
+      inv = new DOMMatrix();
+    }
+    const ratio = window.devicePixelRatio || 1;
+    const final = new DOMMatrix().scale(ratio, ratio).multiply(inv);
+    ctx.setTransform(final.a, final.b, final.c, final.d, final.e, final.f);
+
+    // estilos
+    ctx.lineWidth = 2;
+    ctx.lineCap = "round";
+    ctx.strokeStyle = "#000";
   };
 
   const handleListo = () => {
@@ -149,11 +234,18 @@ const ModalMantenimiento = ({ equipoId, onClose, onGuardar }) => {
     const canvasOculto = canvasStorageRef.current;
 
     if (canvasVisible && canvasOculto) {
-      const ctx = canvasOculto.getContext("2d", { willReadFrequently: true });
-      ctx.clearRect(0, 0, 500, 150);
-      ctx.drawImage(canvasVisible, 0, 0, 500, 150);
-    }
+      // Ajustar el canvas oculto al tamaño real del visible
+      canvasOculto.width = canvasVisible.width;
+      canvasOculto.height = canvasVisible.height;
 
+      const ctx = canvasOculto.getContext("2d", { willReadFrequently: true });
+      ctx.fillStyle = "#fff"; // fondo blanco (para JPG)
+      ctx.fillRect(0, 0, canvasOculto.width, canvasOculto.height);
+
+      // Copiar sin deformar
+      ctx.drawImage(canvasVisible, 0, 0);
+    }
+    cerrarPantallaCompleta();
     setMostrarFirmaFullscreen(false);
     setFirmaHecha(true);
   };
@@ -207,33 +299,19 @@ const ModalMantenimiento = ({ equipoId, onClose, onGuardar }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validar()) return;
+
     try {
       const canvas = canvasStorageRef.current;
       if (!canvas) {
         alert("Error crítico: No se encontró el lienzo de firma.");
         return;
       }
-      const ctx = canvas.getContext("2d", { willReadFrequently: true });
-      const imageData = ctx.getImageData(
-        0,
-        0,
-        canvas.width,
-        canvas.height
-      ).data;
-      const isBlank = imageData.every((pixel) => pixel === 255);
 
-      if (
-        isBlank &&
-        !window.confirm("La firma está vacía. ¿Continuar de todos modos?")
-      ) {
-        return;
-      }
-
-      const dataURL = canvas.toDataURL("image/jpeg", 0.8);
+      // Exportar en JPG con fondo blanco
+      const dataURL = canvas.toDataURL("image/jpeg", 1.0);
       const res = await fetch(dataURL);
       const blob = await res.blob();
 
-      // Crear FormData
       const formData = new FormData();
       formData.append("equipoId", equipoId);
       formData.append("tipo_mantenimiento", mantenimiento.tipo_mantenimiento);
@@ -243,14 +321,11 @@ const ModalMantenimiento = ({ equipoId, onClose, onGuardar }) => {
       formData.append("observaciones", mantenimiento.observaciones);
       formData.append("usuario_registro", mantenimiento.usuario_registro);
 
-      // Nombre del archivo: fecha + milisegundos + _firma.jpg
-      const fecha = new Date().toISOString().replace(/:/g, "-"); // Evita : en nombre
+      const fecha = new Date().toISOString().replace(/:/g, "-");
       const fileName = `${fecha}_firma.jpg`;
       formData.append("firma", blob, fileName);
 
-      // Enviar al backend
-      await agregarMantenimiento(formData); // Cambia api para aceptar FormData
-
+      await agregarMantenimiento(formData);
       onGuardar();
       onClose();
     } catch (err) {
@@ -388,11 +463,19 @@ const ModalMantenimiento = ({ equipoId, onClose, onGuardar }) => {
             <label>Firma del responsable:</label>
             <button
               type="button"
-              onClick={() => setMostrarFirmaFullscreen(true)}
+              onClick={() => {
+                setMostrarFirmaFullscreen(true);
+                setTimeout(() => {
+                  const contenedor =
+                    document.getElementById("contenedor-firma");
+                  if (contenedor) abrirPantallaCompleta(contenedor);
+                }, 50);
+              }}
               className="btn-firma"
             >
               {firmaHecha ? "✏️ Editar firma" : "✍️ Tocar para firmar"}
             </button>
+
             {firmaHecha && (
               <p className="firma-completada">✔️ Firma completada</p>
             )}
@@ -410,6 +493,7 @@ const ModalMantenimiento = ({ equipoId, onClose, onGuardar }) => {
           {/* Modal full screen para firma */}
           {mostrarFirmaFullscreen && (
             <div
+              id="contenedor-firma"
               className="firma-fullscreen"
               onClick={(e) => e.stopPropagation()}
             >

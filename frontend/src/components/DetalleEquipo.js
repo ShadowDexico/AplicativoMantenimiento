@@ -65,9 +65,6 @@ const DetalleEquipo = ({ equipo, onVolver, onActualizar }) => {
       nombre_dispositivo: equipoEdit.nombre_dispositivo || "",
       ip: equipoEdit.ipActiva ? equipoEdit.ip || "" : null,
     };
-
-    console.log("📤 Enviando al backend:", data);
-
     try {
       // Llama al API para guardar
       await actualizarEquipo(equipo.id, data);
@@ -408,7 +405,7 @@ const DetalleEquipo = ({ equipo, onVolver, onActualizar }) => {
               className="buttomDetalleEquipo"
               onClick={() => setShowModal(true)}
             >
-              ➕ Mantenimiento
+              ➕Mantenimiento
             </button>
 
             {/* Mostrar botón "Dar de baja" solo si está activo */}
@@ -495,10 +492,11 @@ const DetalleEquipo = ({ equipo, onVolver, onActualizar }) => {
                         <button
                           className="buttomListaEquipo"
                           onClick={() => {
-                            const backendHost = "10.20.1.142";
-                            console.log(m.firma.split('firma/')[1]);
+                            const backendHost = process.env.REACT_APP_BASE_URL;
                             setFirmaSeleccionada(
-                              `http://${backendHost}:3150/${m.firma.split('firma/')[1]}`
+                              `http://${backendHost}:3150/${
+                                m.firma.split("firma/")[1]
+                              }`
                             );
                             setMostrarModalFirma(true);
                           }}

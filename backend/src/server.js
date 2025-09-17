@@ -9,5 +9,5 @@ app.use(express.json());
 app.use(express.static('firma'))
 app.use("/api/equipos", equiposRoutes);
 app.listen(PORT, () => {
-  console.log(`Servidor backend corriendo en http://localhost:${PORT}`);
+  console.log(`Servidor backend de mantenimiento corriendo en http://localhost:${PORT}`);
 });
